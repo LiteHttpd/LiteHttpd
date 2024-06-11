@@ -1,4 +1,4 @@
-# Prerequisites
+﻿# Prerequisites
 *.d
 
 # Compiled Object files
@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+# Visual Studio Temp
+.vs/**
+
+# Output
+[Oo]ut/**
+
+# vcpkg Packages
+vcpkg_installed/**
