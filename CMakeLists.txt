@@ -33,13 +33,36 @@ set (OUTPUT_DIR "${CMAKE_BINARY_DIR}/bin")
 # Packages
 find_package (OpenSSL REQUIRED)
 find_package (Libevent CONFIG REQUIRED)
+find_package(Lua REQUIRED)
+
+# App Configs
+file (GLOB_RECURSE APP_CONFIG_SRC CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/config/*")
+set (APP_CONFIG_OUTPUT "")
+foreach (ITEM ${APP_CONFIG_SRC})
+    string (REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/config" "${OUTPUT_DIR}" ITEM_TARGET ${ITEM})
+	list (APPEND APP_CONFIG_OUTPUT ${ITEM_TARGET})
+
+	cmake_path (CONVERT ${ITEM} TO_NATIVE_PATH_LIST ITEM_INPUT)
+	cmake_path (CONVERT ${ITEM_TARGET} TO_NATIVE_PATH_LIST ITEM_OUTPUT)
+
+    add_custom_command (
+		OUTPUT ${ITEM_TARGET}
+		COMMAND copy ${ITEM_INPUT} ${ITEM_OUTPUT}
+		DEPENDS ${ITEM}
+		COMMENT "Copying application config file: ${ITEM}"
+		VERBATIM)
+endforeach (ITEM ${APP_CONFIG_SRC})
+add_custom_target (app_config_copy
+	DEPENDS ${APP_CONFIG_OUTPUT}
+	COMMENT "Copy application configs"
+	VERBATIM)
 
 # Source Files
 file (GLOB_RECURSE LITEHTTPD_SRC CONFIGURE_DEPENDS "./source/*.cpp" "./source/*.c" "./source/*.rc")
 
 # Target
 add_executable (LiteHttpd ${LITEHTTPD_SRC})
-target_include_directories (LiteHttpd PRIVATE "./source")
+target_include_directories (LiteHttpd PRIVATE ${LUA_INCLUDE_DIR} "./source")
 target_compile_definitions (LiteHttpd PRIVATE ${COMPILE_SYS_DEF})
 target_compile_definitions (LiteHttpd PRIVATE
 	"PROJECT_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}"
@@ -49,6 +72,7 @@ target_compile_definitions (LiteHttpd PRIVATE
 target_link_libraries (LiteHttpd PRIVATE
 	OpenSSL::SSL OpenSSL::Crypto
 	libevent::core libevent::extra libevent::openssl
+	${LUA_LIBRARIES}
 )
 
 if (NOT MSVC)
@@ -63,5 +87,8 @@ if (MSVC)
 		/SUBSYSTEM:CONSOLE
 	)
 endif (MSVC)
+
+add_dependencies (LiteHttpd
+	app_config_copy)
 
 set_target_properties (LiteHttpd PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR}")

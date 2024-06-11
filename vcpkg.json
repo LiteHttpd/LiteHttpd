@@ -3,7 +3,11 @@
     "openssl",
     {
       "name": "libevent",
-      "features": ["openssl", "thread"]
+      "features": [ "openssl", "thread" ]
+    },
+    {
+      "name": "lua",
+      "features": [ "cpp" ]
     }
   ]
 }
