@@ -6,7 +6,7 @@ A super lightweight HTTP service framework.
 ## Get Source Code
 ### Windows (MSVC)
 ```
-git clone https://github.com/FangCunWuChang/LiteHttpd.git
+git clone https://github.com/LiteHttpd/LiteHttpd.git
 cd LiteHttpd
 git submodule update --init --recursive
 cd vcpkg
