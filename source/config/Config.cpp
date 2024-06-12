@@ -21,6 +21,22 @@ void Config::loadFrom(const std::string& path) {
 	lua_close(lState);
 }
 
+uint16_t Config::getPort() const {
+	return this->port;
+}
+
+bool Config::getHttps() const {
+	return this->https;
+}
+
+const ModuleList::Data Config::getModuleList() const {
+	return this->modules.getCopy();
+}
+
+const CerList::Data Config::getCerList() const {
+	return this->certificates.getCopy();
+}
+
 void Config::addModule(const std::string& host, const std::string& modulePath) {
 	this->modules.insert(host, modulePath);
 }

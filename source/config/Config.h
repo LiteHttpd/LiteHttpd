@@ -11,6 +11,12 @@ public:
 
 	void loadFrom(const std::string& path);
 
+	uint16_t getPort() const;
+	bool getHttps() const;
+
+	const ModuleList::Data getModuleList() const;
+	const CerList::Data getCerList() const;
+
 public:
 	void setPort(uint16_t port);
 	void setHttps(bool https);
