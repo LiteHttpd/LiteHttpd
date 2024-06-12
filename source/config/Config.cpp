@@ -29,6 +29,22 @@ void Config::removeModule(const std::string& host) {
 	this->modules.remove(host);
 }
 
+void Config::addCer(const std::string& host, const std::string& keyPath, const std::string& cerPath) {
+	this->certificates.insert(host, keyPath, cerPath);
+}
+
+void Config::removeCer(const std::string& host) {
+	this->certificates.remove(host);
+}
+
+void Config::setPort(uint16_t port) {
+	this->port = port;
+}
+
+void Config::setHttps(bool https) {
+	this->https = https;
+}
+
 Config* Config::getInstance() {
 	return Config::instance ? Config::instance
 		: (Config::instance = new Config{});
