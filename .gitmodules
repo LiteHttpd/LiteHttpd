@@ -1,3 +1,6 @@
 [submodule "vcpkg"]
 	path = vcpkg
 	url = https://github.com/microsoft/vcpkg.git
+[submodule "LiteHttpd.Dev"]
+	path = LiteHttpd.Dev
+	url = https://github.com/LiteHttpd/LiteHttpd.Dev.git

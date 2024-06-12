@@ -35,6 +35,9 @@ find_package (OpenSSL REQUIRED)
 find_package (Libevent CONFIG REQUIRED)
 find_package(Lua REQUIRED)
 
+# Get SDK
+add_subdirectory (LiteHttpd.Dev)
+
 # App Configs
 file (GLOB_RECURSE APP_CONFIG_SRC CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/config/*")
 set (APP_CONFIG_OUTPUT "")
@@ -70,6 +73,7 @@ target_compile_definitions (LiteHttpd PRIVATE
 	"PROJECT_VERSION_PATCH=${PROJECT_VERSION_PATCH}"
 )
 target_link_libraries (LiteHttpd PRIVATE
+	LiteHttpdDev::core
 	OpenSSL::SSL OpenSSL::Crypto
 	libevent::core libevent::extra libevent::openssl
 	${LUA_LIBRARIES}
