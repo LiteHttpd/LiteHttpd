@@ -38,6 +38,9 @@ find_package(Lua REQUIRED)
 # Get SDK
 add_subdirectory (LiteHttpd.Dev)
 
+# Get LiteHttpd.FileServer
+add_subdirectory (LiteHttpd.FileServer)
+
 # App Configs
 file (GLOB_RECURSE APP_CONFIG_SRC CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/config/*")
 set (APP_CONFIG_OUTPUT "")
@@ -93,6 +96,6 @@ if (MSVC)
 endif (MSVC)
 
 add_dependencies (LiteHttpd
-	app_config_copy)
+	app_config_copy LiteHttpd.FileServer)
 
 set_target_properties (LiteHttpd PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR}")

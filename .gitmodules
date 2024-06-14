@@ -4,3 +4,6 @@
 [submodule "LiteHttpd.Dev"]
 	path = LiteHttpd.Dev
 	url = https://github.com/LiteHttpd/LiteHttpd.Dev.git
+[submodule "LiteHttpd.FileServer"]
+	path = LiteHttpd.FileServer
+	url = https://github.com/LiteHttpd/LiteHttpd.FileServer.git
