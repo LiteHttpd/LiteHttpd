@@ -41,6 +41,25 @@ add_subdirectory (LiteHttpd.Dev)
 # Get LiteHttpd.FileServer
 add_subdirectory (LiteHttpd.FileServer)
 
+# OpenSSL Debug
+find_program(OPENSSL_EXECUTABLE NAMES openssl)
+message (STATUS "OpenSSL excutable path: ${OPENSSL_EXECUTABLE}")
+execute_process (
+	COMMAND ${OPENSSL_EXECUTABLE} --version
+	OUTPUT_VARIABLE openssl_out
+	ERROR_VARIABLE openssl_err
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+	ERROR_STRIP_TRAILING_WHITESPACE
+	ERROR_QUIET
+	RESULT_VARIABLE openssl_code
+)
+
+if (openssl_code EQUAL 0)
+	message (STATUS "${openssl_out}")
+else ()
+	message (FATAL_ERROR "Error getting OpenSSL version with exit code ${openssl_code}: ${openssl_err}")
+endif ()
+
 # App Configs
 file (GLOB_RECURSE APP_CONFIG_SRC CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/config/*")
 set (APP_CONFIG_OUTPUT "")
@@ -63,6 +82,29 @@ add_custom_target (app_config_copy
 	COMMENT "Copy application configs"
 	VERBATIM)
 
+# Generate Localhost Certificate
+set (LOCALHOST_CSR_OUT "${OUTPUT_DIR}/localhost.csr")
+set (LOCALHOST_CER_OUT "${OUTPUT_DIR}/localhost.cer")
+set (LOCALHOST_KEY_OUT "${OUTPUT_DIR}/localhost.key")
+get_filename_component (OPENSSL_DIR ${OPENSSL_EXECUTABLE} DIRECTORY)
+get_filename_component (OPENSSL_NAME ${OPENSSL_EXECUTABLE} NAME)
+set (OPENSSL_CNF "${OPENSSL_DIR}/openssl.cnf")
+
+add_custom_command (
+	OUTPUT "${LOCALHOST_CER_OUT}" "${LOCALHOST_KEY_OUT}" "${LOCALHOST_CSR_OUT}"
+	COMMAND ${OPENSSL_NAME} genrsa -out ${LOCALHOST_KEY_OUT} 2048
+    COMMAND ${OPENSSL_NAME} req -new -key ${LOCALHOST_KEY_OUT} -out ${LOCALHOST_CSR_OUT} -subj "/C=US/ST=State/L=City/O=Organization/OU=Unit/CN=localhost" -config ${OPENSSL_CNF}
+    COMMAND ${OPENSSL_NAME} x509 -req -days 358000 -in ${LOCALHOST_CSR_OUT} -signkey ${LOCALHOST_KEY_OUT} -out ${LOCALHOST_CER_OUT} -extensions v3_req -extfile ${OPENSSL_CNF}
+    DEPENDS ${OPENSSL_EXECUTABLE}
+	WORKING_DIRECTORY ${OPENSSL_DIR}
+	COMMENT "Generate localhost certificate to ${LOCALHOST_CER_OUT} ${LOCALHOST_KEY_OUT} ${LOCALHOST_CSR_OUT}"
+	VERBATIM)
+
+add_custom_target (localhost_cer_generate
+	DEPENDS "${LOCALHOST_CER_OUT}" "${LOCALHOST_KEY_OUT}" "${LOCALHOST_CSR_OUT}"
+	COMMENT "Generate localhost certificate"
+	VERBATIM)
+
 # Source Files
 file (GLOB_RECURSE LITEHTTPD_SRC CONFIGURE_DEPENDS "./source/*.cpp" "./source/*.c" "./source/*.rc")
 
@@ -75,6 +117,9 @@ target_compile_definitions (LiteHttpd PRIVATE
 	"PROJECT_VERSION_MINOR=${PROJECT_VERSION_MINOR}"
 	"PROJECT_VERSION_PATCH=${PROJECT_VERSION_PATCH}"
 )
+if (WIN32)
+	target_compile_definitions (LiteHttpd PRIVATE "WIN32_LEAN_AND_MEAN")
+endif ()
 target_link_libraries (LiteHttpd PRIVATE
 	LiteHttpdDev::core
 	OpenSSL::SSL OpenSSL::Crypto
@@ -96,6 +141,8 @@ if (MSVC)
 endif (MSVC)
 
 add_dependencies (LiteHttpd
-	app_config_copy LiteHttpd.FileServer)
+	app_config_copy localhost_cer_generate
+	LiteHttpd.FileServer
+)
 
 set_target_properties (LiteHttpd PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR}")

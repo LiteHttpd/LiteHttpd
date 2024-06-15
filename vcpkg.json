@@ -1,6 +1,9 @@
 ﻿{
   "dependencies": [
-    "openssl",
+    {
+      "name": "openssl",
+      "features": [ "ssl3", "tools" ]
+    },
     {
       "name": "libevent",
       "features": [ "openssl", "thread" ]

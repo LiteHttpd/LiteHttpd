@@ -1,8 +1,11 @@
 ﻿#include <string>
+#include <memory>
 
 #include "config/Config.h"
 #include "module/ModuleManager.h"
 #include "ssl/CtxManager.h"
+#include "http/EventBase.h"
+#include "http/HttpServer.h"
 
 static void loadModules(const ModuleList::Data& list) {
 	for (auto& i : list) {
@@ -38,11 +41,24 @@ int main(int argc, char* argv[]){
 		loadModules(moduleList);
 	}
 
+	/** Create Server */
+	auto server = std::make_unique<HttpServer>(
+		Config::getInstance()->getHttps()
+		? HttpServer::ProtocolType::HTTPS : HttpServer::ProtocolType::HTTP,
+		std::string{ "0.0.0.0" }, Config::getInstance()->getPort(),
+		[](const std::string& host) { return CtxManager::getInstance()->get(host); },
+		[] { return CtxManager::getInstance()->getDefault(); }
+	);
+
+	/** Run Event Loop */
+	int retCode = EventBase::getInstance()->runEventLoop();
+
 	/** Shutdown */
+	EventBase::releaseInstance();
 	Config::releaseInstance();
 	CtxManager::releaseInstance();
 	ModuleManager::releaseInstance();
 
 	/** Exit Code */
-	return 0;
+	return retCode;
 }

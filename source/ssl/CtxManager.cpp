@@ -19,9 +19,21 @@ CtxManager::CtxManager() {
 	SSL_library_init();
 	SSL_load_error_strings();
 	OpenSSL_add_all_algorithms();
+
+	/** Default Ctx */
+	{
+		std::lock_guard locker(this->lock);
+		auto getCtxFunc = [](const std::string& host) {
+			return CtxManager::getInstance()->get(host);
+			};
+		this->defaultCtx = std::make_shared<CtxHolder>(
+			std::string{}, std::string{}, getCtxFunc);
+	}
 }
 
-CtxManager::~CtxManager() {}
+CtxManager::~CtxManager() {
+	EVP_cleanup();
+}
 
 void CtxManager::load(const std::string& host,
 	const std::string& keyPath, const std::string& cerPath) {
@@ -47,6 +59,11 @@ SSL_CTX* CtxManager::get(const std::string& host) const {
 	}
 
 	return nullptr;
+}
+
+SSL_CTX* CtxManager::getDefault() const {
+	std::lock_guard locker(this->lock);
+	return this->defaultCtx->getCtx();
 }
 
 CtxManager* CtxManager::getInstance() {
