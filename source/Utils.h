@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <string>
+#include <vector>
 
 namespace utils {
 	int getMajorVersion();
@@ -8,4 +9,6 @@ namespace utils {
 	int getPatchVersion();
 
 	const std::string getVersionStr();
+
+	const std::vector<char> loadFile(const std::string& path);
 }

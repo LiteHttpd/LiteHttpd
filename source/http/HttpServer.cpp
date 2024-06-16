@@ -117,6 +117,11 @@ void HttpServer::printBindStatus() const {
 	}
 }
 
+void HttpServer::setDefaultPage(const std::vector<char>& pageData) {
+	std::lock_guard locker(this->defaultPageLock);
+	this->defaultPage = pageData;
+}
+
 bufferevent* HttpServer::connectionCallback(event_base* base, void* arg) {
 	if (auto server = reinterpret_cast<HttpServer*>(arg)) {
 		if (server->protocol == ProtocolType::HTTP) {
@@ -136,9 +141,11 @@ bufferevent* HttpServer::connectionCallback(event_base* base, void* arg) {
 
 void HttpServer::requestCallback(evhttp_request* request, void* arg) {
 	/** TODO */
-	const char* testData = "<html><head><title>LiteHttpd</title></head><body>Hello LiteHttpd!</body></html>";
 	evbuffer* buf = evbuffer_new();
-	evbuffer_add_printf(buf, testData);
+	if (auto server = reinterpret_cast<HttpServer*>(arg)) {
+		std::lock_guard locker(server->defaultPageLock);
+		evbuffer_add(buf, server->defaultPage.data(), server->defaultPage.size());
+	}
 	evhttp_send_reply(request, 200, "OK", buf);
 	evbuffer_free(buf);
 }

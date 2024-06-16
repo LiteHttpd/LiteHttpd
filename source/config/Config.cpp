@@ -29,6 +29,10 @@ bool Config::getHttps() const {
 	return this->https;
 }
 
+std::string Config::getDefaultPage() const {
+	return this->defaultPage;
+}
+
 const ModuleList::Data Config::getModuleList() const {
 	return this->modules.getCopy();
 }
@@ -59,6 +63,10 @@ void Config::setPort(uint16_t port) {
 
 void Config::setHttps(bool https) {
 	this->https = https;
+}
+
+void Config::setDefaultPage(const std::string& path) {
+	this->defaultPage = path;
 }
 
 Config* Config::getInstance() {

@@ -13,6 +13,7 @@ public:
 
 	uint16_t getPort() const;
 	bool getHttps() const;
+	std::string getDefaultPage() const;
 
 	const ModuleList::Data getModuleList() const;
 	const CerList::Data getCerList() const;
@@ -20,6 +21,7 @@ public:
 public:
 	void setPort(uint16_t port);
 	void setHttps(bool https);
+	void setDefaultPage(const std::string& path);
 
 	void addModule(const std::string& host, const std::string& modulePath);
 	void removeModule(const std::string& host);
@@ -30,6 +32,7 @@ public:
 private:
 	uint16_t port = 80;
 	bool https = false;
+	std::string defaultPage = "default.html";
 
 	ModuleList modules;
 	CerList certificates;

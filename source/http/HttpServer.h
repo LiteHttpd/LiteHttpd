@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include <string>
+#include <vector>
+#include <mutex>
 #include <functional>
 #include <event2/http.h>
 #include <openssl/ssl.h>
@@ -19,6 +21,8 @@ public:
 
 	void printBindStatus() const;
 
+	void setDefaultPage(const std::vector<char>& pageData);
+
 private:
 	static bufferevent* connectionCallback(event_base* base, void* arg);
 	static void requestCallback(evhttp_request* request, void* arg);
@@ -27,6 +31,9 @@ private:
 	const ProtocolType protocol = ProtocolType::HTTP;
 	const FindCtxFunc findCtx;
 	const DefaultCtxFunc defaultCtx;
+
+	std::vector<char> defaultPage;
+	std::mutex defaultPageLock;
 
 	evhttp* http = nullptr;
 	evhttp_bound_socket* handle = nullptr;

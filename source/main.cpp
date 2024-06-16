@@ -6,6 +6,7 @@
 #include "ssl/CtxManager.h"
 #include "http/EventBase.h"
 #include "http/HttpServer.h"
+#include "Utils.h"
 
 static void loadModules(const ModuleList::Data& list) {
 	for (auto& i : list) {
@@ -41,6 +42,9 @@ int main(int argc, char* argv[]){
 		loadModules(moduleList);
 	}
 
+	/** Load Default Page */
+	auto defaultPage = utils::loadFile(Config::getInstance()->getDefaultPage());
+
 	/** Create Server */
 	auto server = std::make_unique<HttpServer>(
 		Config::getInstance()->getHttps()
@@ -49,6 +53,7 @@ int main(int argc, char* argv[]){
 		[](const std::string& host) { return CtxManager::getInstance()->get(host); },
 		[] { return CtxManager::getInstance()->getDefault(); }
 	);
+	server->setDefaultPage(defaultPage);
 
 	/** Run Event Loop */
 	int retCode = EventBase::getInstance()->runEventLoop();

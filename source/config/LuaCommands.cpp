@@ -36,6 +36,14 @@ namespace lua {
 		return 0;
 	}
 
+	int set_default_page(lua_State* L) {
+		const char* path = luaL_checkstring(L, 1);
+
+		Config::getInstance()->setDefaultPage(path);
+
+		return 0;
+	}
+
 	int add_cer(lua_State* L) {
 		const char* host = luaL_checkstring(L, 1);
 		const char* keyPath = luaL_checkstring(L, 2);
@@ -66,6 +74,7 @@ void loadLuaCommands(lua_State* L) {
 	LUA_PUSH_FUNC(L, remove_module);
 	LUA_PUSH_FUNC(L, set_port);
 	LUA_PUSH_FUNC(L, set_https);
+	LUA_PUSH_FUNC(L, set_default_page);
 	LUA_PUSH_FUNC(L, add_cer);
 	LUA_PUSH_FUNC(L, remove_cer);
 }
