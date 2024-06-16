@@ -1,9 +1,20 @@
 ﻿#include "ModuleManager.h"
 
+#if WIN32
+#define DYNAMIC_PREFIX ".dll"
+#elif LINUX
+#define DYNAMIC_PREFIX ".so"
+#elif DARWIN
+#define DYNAMIC_PREFIX ".dylib"
+#else
+#define DYNAMIC_PREFIX ""
+#endif // WIN32
+
+
 void ModuleManager::load(const std::string& host, const std::string& path) {
 	std::lock_guard locker(this->lock);
 
-	auto moduleHolder = std::make_unique<ModuleHolder>(path);
+	auto moduleHolder = std::make_unique<ModuleHolder>(path + DYNAMIC_PREFIX);
 	if (moduleHolder->getModule()) {
 		this->modules.insert({ host,
 			std::shared_ptr<ModuleHolder>{ moduleHolder.release() } });

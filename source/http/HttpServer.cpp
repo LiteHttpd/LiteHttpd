@@ -1,5 +1,7 @@
 ﻿#include "HttpServer.h"
 #include "EventBase.h"
+#include "RequestParamsBuilder.h"
+#include "Utils.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -41,8 +43,11 @@
 
 HttpServer::HttpServer(ProtocolType protocol, 
 	const std::string& address, uint16_t port,
-	const FindCtxFunc& findCtx, const DefaultCtxFunc& defaultCtx)
-	: protocol(protocol), findCtx(findCtx), defaultCtx(defaultCtx) {
+	const FindCtxFunc& findCtx, const DefaultCtxFunc& defaultCtx,
+	const FindModuleFunc& findModule)
+	: protocol(protocol),
+	findCtx(findCtx), defaultCtx(defaultCtx),
+	findModule(findModule) {
 	/** Init Socket */
 #ifdef _WIN32
 	WSADATA WSAData;
@@ -140,12 +145,35 @@ bufferevent* HttpServer::connectionCallback(event_base* base, void* arg) {
 }
 
 void HttpServer::requestCallback(evhttp_request* request, void* arg) {
-	/** TODO */
-	evbuffer* buf = evbuffer_new();
+	/** Params */
+	RequestParams params;
+	RequestParamsBuilder::build(params, request);
+
+	/** Find Module */
 	if (auto server = reinterpret_cast<HttpServer*>(arg)) {
-		std::lock_guard locker(server->defaultPageLock);
-		evbuffer_add(buf, server->defaultPage.data(), server->defaultPage.size());
+		if (auto module = server->findModule(params.addr)) {
+			module->processRequest(params);
+
+			/** No Response */
+			if (params.getResponseCode() <= 0) {
+				evhttp_send_reply(request, 503, utils::getResponseReason(503), nullptr);
+			}
+			return;
+		}
 	}
-	evhttp_send_reply(request, 200, "OK", buf);
-	evbuffer_free(buf);
+
+	/** Default */
+	if (auto server = reinterpret_cast<HttpServer*>(arg)) {
+		auto buffer = std::unique_ptr<evbuffer, void(*)(evbuffer*)>(evbuffer_new(), evbuffer_free);
+		{
+			std::lock_guard locker(server->defaultPageLock);
+			evbuffer_add(buffer.get(), server->defaultPage.data(), server->defaultPage.size());
+		}
+		evhttp_send_reply(request, 200, utils::getResponseReason(200), buffer.get());
+		return;
+	}
+	
+	/** Error */
+	evhttp_send_reply(request, 500, utils::getResponseReason(500), nullptr);
+	return;
 }

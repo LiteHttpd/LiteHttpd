@@ -11,4 +11,6 @@ namespace utils {
 	const std::string getVersionStr();
 
 	const std::vector<char> loadFile(const std::string& path);
+
+	const char* getResponseReason(int code);
 }

@@ -51,7 +51,8 @@ int main(int argc, char* argv[]){
 		? HttpServer::ProtocolType::HTTPS : HttpServer::ProtocolType::HTTP,
 		std::string{ "0.0.0.0" }, Config::getInstance()->getPort(),
 		[](const std::string& host) { return CtxManager::getInstance()->get(host); },
-		[] { return CtxManager::getInstance()->getDefault(); }
+		[] { return CtxManager::getInstance()->getDefault(); },
+		[](const std::string& host) { return ModuleManager::getInstance()->get(host); }
 	);
 	server->setDefaultPage(defaultPage);
 
