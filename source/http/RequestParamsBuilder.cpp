@@ -148,6 +148,27 @@ void RequestParamsBuilder::build(
 			evhttp_send_reply(request, responseCode, utils::getResponseReason(responseCode), buffer.get());
 		}
 		};
+	params.replyStartFunc = [](void* content, int responseCode) {
+		if (auto request = reinterpret_cast<evhttp_request*>(content)) {
+			evhttp_send_reply_start(request, responseCode, utils::getResponseReason(responseCode));
+		}
+		};
+	params.replyDataFunc = [](void* content, const std::vector<char>& data) {
+		if (auto request = reinterpret_cast<evhttp_request*>(content)) {
+			auto buffer = std::unique_ptr<evbuffer, void(*)(evbuffer*)>(evbuffer_new(), evbuffer_free);
+			evbuffer_add(buffer.get(), data.data(), data.size());
+
+			evhttp_send_reply_chunk(request, buffer.get());
+		}
+		};
+	params.replyEndFunc = [](void* content) {
+		if (auto request = reinterpret_cast<evhttp_request*>(content)) {
+			evhttp_send_reply_end(request);
+		}
+		};
+	params.logFunc = [](RequestParams::LogLevel level, const std::string& data) {
+		/** TODO */
+		};
 }
 
 std::tuple<std::string, uint16_t> RequestParamsBuilder::parseHostStr(const std::string& hostStr, bool https) {
