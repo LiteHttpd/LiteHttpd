@@ -1,5 +1,6 @@
 ﻿#include "RequestParamsBuilder.h"
 #include "Utils.h"
+#include "log/Logger.h"
 
 #include <memory>
 #include <sstream>
@@ -166,8 +167,24 @@ void RequestParamsBuilder::build(
 			evhttp_send_reply_end(request);
 		}
 		};
-	params.logFunc = [](RequestParams::LogLevel level, const std::string& data) {
-		/** TODO */
+	params.logFunc = [addr = params.addr](RequestParams::LogLevel level, const std::string& data) {
+		switch (level) {
+		case RequestParams::LogLevel::DEBUG:
+			Logger::debug("[" + addr + "] " + data);
+			break;
+		case RequestParams::LogLevel::INFO:
+			Logger::info("[" + addr + "] " + data);
+			break;
+		case RequestParams::LogLevel::WARNING:
+			Logger::warning("[" + addr + "] " + data);
+			break;
+		case RequestParams::LogLevel::ERROR_:
+			Logger::error("[" + addr + "] " + data);
+			break;
+		case RequestParams::LogLevel::CRITICAL:
+			Logger::fatal("[" + addr + "] " + data);
+			break;
+		}
 		};
 }
 

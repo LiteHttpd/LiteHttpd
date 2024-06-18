@@ -11,6 +11,10 @@
     {
       "name": "lua",
       "features": [ "cpp" ]
+    },
+    {
+      "name": "glog",
+      "features": [ "customprefix" ]
     }
   ]
 }

@@ -6,6 +6,7 @@
 #include "ssl/CtxManager.h"
 #include "http/EventBase.h"
 #include "http/HttpServer.h"
+#include "log/Logger.h"
 #include "Utils.h"
 
 static void loadModules(const ModuleList::Data& list) {
@@ -21,11 +22,15 @@ static void loadCertificates(const CerList::Data& list) {
 }
 
 int main(int argc, char* argv[]){
+	/** Startup */
+	Logger::info("LiteHttpd v" + utils::getVersionStr() + ", SDK v" + utils::getDevKitVersionStr());
+
 	/** Load Configs */
 	{
 		std::string configPath = "config.lua";
 		if (argc == 2) {
 			configPath = argv[1];
+			Logger::info("Get config path from arg: " + configPath);
 		}
 		Config::getInstance()->loadFrom(configPath);
 	}
@@ -64,6 +69,7 @@ int main(int argc, char* argv[]){
 	Config::releaseInstance();
 	CtxManager::releaseInstance();
 	ModuleManager::releaseInstance();
+	Logger::releaseInstance();
 
 	/** Exit Code */
 	return retCode;

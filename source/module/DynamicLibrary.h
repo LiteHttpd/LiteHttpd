@@ -12,6 +12,7 @@ public:
     ~DynamicLibrary();
 
     void* getFunction(const char* funcName) const;
+    bool isValid() const;
 
 private:
 #ifdef _WIN32

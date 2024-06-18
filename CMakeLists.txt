@@ -34,6 +34,7 @@ set (OUTPUT_DIR "${CMAKE_BINARY_DIR}/bin")
 find_package (OpenSSL REQUIRED)
 find_package (Libevent CONFIG REQUIRED)
 find_package(Lua REQUIRED)
+find_package(glog CONFIG REQUIRED)
 
 # Get SDK
 add_subdirectory (LiteHttpd.Dev)
@@ -117,6 +118,7 @@ target_compile_definitions (LiteHttpd PRIVATE
 	"PROJECT_VERSION_MINOR=${PROJECT_VERSION_MINOR}"
 	"PROJECT_VERSION_PATCH=${PROJECT_VERSION_PATCH}"
 )
+target_compile_definitions (LiteHttpd PRIVATE GLOG_NO_ABBREVIATED_SEVERITIES)
 if (WIN32)
 	target_compile_definitions (LiteHttpd PRIVATE "WIN32_LEAN_AND_MEAN")
 endif ()
@@ -125,6 +127,7 @@ target_link_libraries (LiteHttpd PRIVATE
 	OpenSSL::SSL OpenSSL::Crypto
 	libevent::core libevent::extra libevent::openssl
 	${LUA_LIBRARIES}
+	glog::glog
 )
 
 if (NOT MSVC)

@@ -1,4 +1,5 @@
 ﻿#include "CtxManager.h"
+#include "log/Logger.h"
 
 static void* cryptoAlloc(size_t num, const char* file, int line) {
 	return malloc(num);
@@ -45,6 +46,7 @@ void CtxManager::load(const std::string& host,
 
 	auto ctxHolder = std::make_unique<CtxHolder>(keyPath, cerPath, getCtxFunc);
 	if (ctxHolder->checkCer()) {
+		Logger::info("Storage SSL CTX for: " + host);
 		this->contexts.insert({ host,
 			std::shared_ptr<CtxHolder>{ ctxHolder.release() } });
 	}

@@ -2,6 +2,7 @@
 #include "EventBase.h"
 #include "RequestParamsBuilder.h"
 #include "Utils.h"
+#include "log/Logger.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -48,10 +49,15 @@ HttpServer::HttpServer(ProtocolType protocol,
 	: protocol(protocol),
 	findCtx(findCtx), defaultCtx(defaultCtx),
 	findModule(findModule) {
+	Logger::info("Create http server: " + address + ":" + std::to_string(port));
+	Logger::info("Protocol: " + std::string{ (protocol == ProtocolType::HTTPS) ? "https" : "http" });
+
 	/** Init Socket */
 #ifdef _WIN32
 	WSADATA WSAData;
-	int socketStatus = WSAStartup(0x101, &WSAData);
+	if (WSAStartup(0x101, &WSAData) != 0) {
+		Logger::error("Can't init windows socket!");
+	}
 #endif
 
 	/** Init Event Http Connection */
@@ -67,6 +73,9 @@ HttpServer::HttpServer(ProtocolType protocol,
 
 	/** Bind Socket */
 	this->handle = evhttp_bind_socket_with_handle(this->http, address.c_str(), port);
+	if (!this->handle) {
+		Logger::error("Can't bind to socket!");
+	}
 }
 
 HttpServer::~HttpServer() {
@@ -90,7 +99,7 @@ void HttpServer::printBindStatus() const {
 
 	/** Get Socket Name */
 	if (getsockname(fd, &ss.sa, &socklen)) {
-		printf("getsockname() failed");
+		Logger::error("getsockname() failed!");
 		return;
 	}
 
@@ -106,7 +115,7 @@ void HttpServer::printBindStatus() const {
 		inaddr = &ss.i6.sin6_addr;
 	}
 	else {
-		printf("Weird address family %d\n", ss.ss.ss_family);
+		Logger::info("Weird address family " + std::to_string(ss.ss.ss_family));
 		return;
 	}
 
@@ -114,10 +123,10 @@ void HttpServer::printBindStatus() const {
 	char addrbuf[128] = { 0 };
 	const char* addr = evutil_inet_ntop(ss.ss.ss_family, inaddr, addrbuf, sizeof(addrbuf));
 	if (addr) {
-		printf("Listening on %s:%d\n", addr, gotPort);
+		Logger::info("Listening on " + std::string{ addr } + ":" + std::to_string(gotPort));
 	}
 	else {
-		printf("evutil_inet_ntop failed\n");
+		Logger::error("evutil_inet_ntop failed!");
 		return;
 	}
 }
@@ -130,17 +139,20 @@ void HttpServer::setDefaultPage(const std::vector<char>& pageData) {
 bufferevent* HttpServer::connectionCallback(event_base* base, void* arg) {
 	if (auto server = reinterpret_cast<HttpServer*>(arg)) {
 		if (server->protocol == ProtocolType::HTTP) {
+			Logger::info("Create buffer event socket for http connection.");
 			return bufferevent_socket_new(base, -1,
 				BEV_OPT_CLOSE_ON_FREE);
 		}
 		else if (server->protocol == ProtocolType::HTTPS) {
 			if (auto defaultCtx = server->defaultCtx()) {
+				Logger::info("Create buffer event socket for https connection.");
 				return bufferevent_openssl_socket_new(base, -1,
 					SSL_new(defaultCtx), BUFFEREVENT_SSL_ACCEPTING,
 					BEV_OPT_CLOSE_ON_FREE);
 			}
 		}
 	}
+	Logger::error("Can't find server object for connection!");
 	return nullptr;
 }
 
@@ -148,14 +160,20 @@ void HttpServer::requestCallback(evhttp_request* request, void* arg) {
 	/** Params */
 	RequestParams params;
 	RequestParamsBuilder::build(params, request);
+	Logger::info("Accept http(s) request: " + params.addr + ":" + std::to_string(params.port));
+	Logger::info("Peer address: " + params.peerAddr + ":" + std::to_string(params.peerPort));
+	Logger::info("Protocol: " + std::string{ (params.protocol == RequestParams::ProtocolType::HTTPS) ? "https" : "http" });
+	Logger::info("Path: " + params.path);
 
 	/** Find Module */
 	if (auto server = reinterpret_cast<HttpServer*>(arg)) {
 		if (auto module = server->findModule(params.addr)) {
+			Logger::info("Find module for address: " + params.addr);
 			module->processRequest(params);
 
 			/** No Response */
 			if (params.getResponseCode() <= 0) {
+				Logger::warning("Not reply in moudule: " + params.addr + ", send 503.");
 				evhttp_send_reply(request, 503, utils::getResponseReason(503), nullptr);
 			}
 			return;
@@ -164,6 +182,7 @@ void HttpServer::requestCallback(evhttp_request* request, void* arg) {
 
 	/** Default */
 	if (auto server = reinterpret_cast<HttpServer*>(arg)) {
+		Logger::info("Can't find module for address: " + params.addr + ", using default page.");
 		auto buffer = std::unique_ptr<evbuffer, void(*)(evbuffer*)>(evbuffer_new(), evbuffer_free);
 		{
 			std::lock_guard locker(server->defaultPageLock);
@@ -174,6 +193,7 @@ void HttpServer::requestCallback(evhttp_request* request, void* arg) {
 	}
 	
 	/** Error */
+	Logger::error("Can't get server object for address: " + params.addr + ", send 500.");
 	evhttp_send_reply(request, 500, utils::getResponseReason(500), nullptr);
 	return;
 }

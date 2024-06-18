@@ -1,9 +1,12 @@
 ﻿#include "Config.h"
 #include "LuaCommands.h"
+#include "log/Logger.h"
 
 Config::Config() {}
 
 void Config::loadFrom(const std::string& path) {
+	Logger::info("Load config file: " + path);
+
 	/** Create Lua State */
 	auto lState = luaL_newstate();
 	luaL_openlibs(lState);
@@ -14,7 +17,8 @@ void Config::loadFrom(const std::string& path) {
 	/** Run Config File */
 	if (luaL_dofile(lState, path.c_str()) != LUA_OK) {
 		const char* error = luaL_checkstring(lState, -1);
-		/** TODO Error */
+		/** Error */
+		Logger::fatal(std::string{ error });
 	}
 
 	/** Close Lua State */

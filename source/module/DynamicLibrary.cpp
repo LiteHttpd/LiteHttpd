@@ -22,6 +22,14 @@ void* DynamicLibrary::getFunction(const char* funcName) const {
 #endif
 }
 
+bool DynamicLibrary::isValid() const {
+#ifdef _WIN32
+	return this->hModule;
+#else
+	return this->handle;
+#endif
+}
+
 void DynamicLibrary::loadLibrary(const char* libName) {
 #ifdef _WIN32
 	this->hModule = LoadLibrary(libName);

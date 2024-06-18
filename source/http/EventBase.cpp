@@ -1,4 +1,5 @@
 ﻿#include "EventBase.h"
+#include "log/Logger.h"
 
 EventBase::EventBase() {
 	/** Init Event Base */
@@ -14,6 +15,7 @@ event_base* EventBase::getBase() const {
 }
 
 int EventBase::runEventLoop() {
+	Logger::info("Run event loop.");
 	return event_base_dispatch(this->base);
 }
 

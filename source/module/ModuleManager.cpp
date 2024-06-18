@@ -1,4 +1,5 @@
 ﻿#include "ModuleManager.h"
+#include "log/Logger.h"
 
 #if WIN32
 #define DYNAMIC_PREFIX ".dll"
@@ -16,6 +17,7 @@ void ModuleManager::load(const std::string& host, const std::string& path) {
 
 	auto moduleHolder = std::make_unique<ModuleHolder>(path + DYNAMIC_PREFIX);
 	if (moduleHolder->getModule()) {
+		Logger::info("Storage module object for: " + host);
 		this->modules.insert({ host,
 			std::shared_ptr<ModuleHolder>{ moduleHolder.release() } });
 	}

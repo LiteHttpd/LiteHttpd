@@ -1,8 +1,14 @@
 ﻿#include "ModuleHolder.h"
+#include "log/Logger.h"
 
 ModuleHolder::ModuleHolder(const std::string& path) {
+	Logger::info("Create module holder for: " + path);
+
 	/** Load Library */
 	this->library = std::make_unique<DynamicLibrary>(path.c_str());
+	if (!this->library->isValid()) {
+		Logger::error("Can't load module for: " + path);
+	}
 
 	/** Get Create And Destory Function */
 	this->createFunc = reinterpret_cast<ModuleCreateFunc>(
@@ -13,6 +19,9 @@ ModuleHolder::ModuleHolder(const std::string& path) {
 	/** Create Module */
 	if (this->createFunc && this->destoryFunc) {
 		this->module = this->createFunc();
+	}
+	else {
+		Logger::error("Can't create module object for: " + path);
 	}
 }
 
