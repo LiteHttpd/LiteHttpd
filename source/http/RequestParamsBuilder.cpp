@@ -8,7 +8,7 @@
 #include <event2/buffer.h>
 
 void RequestParamsBuilder::build(
-	RequestParams& params, evhttp_request* request) {
+	RequestParams& params, evhttp_request* request, bool https) {
 	if (!request) { return; }
 
 	/** Get Connection */
@@ -111,6 +111,11 @@ void RequestParamsBuilder::build(
 		auto it = params.headers.find("X-Forwarded-Proto");
 		if (it != params.headers.end()) {
 			params.protocol = (it->second == "https")
+				? RequestParams::ProtocolType::HTTPS
+				: RequestParams::ProtocolType::HTTP;
+		}
+		else {
+			params.protocol = https
 				? RequestParams::ProtocolType::HTTPS
 				: RequestParams::ProtocolType::HTTP;
 		}

@@ -8,7 +8,9 @@ class RequestParamsBuilder final {
 	RequestParamsBuilder() = delete;
 
 public:
-	static void build(RequestParams& params, evhttp_request* request);
+	static void build(
+		RequestParams& params, evhttp_request* request,
+		bool https);
 
 private:
 	static std::tuple<std::string, uint16_t> parseHostStr(const std::string& hostStr, bool https);

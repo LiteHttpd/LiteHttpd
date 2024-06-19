@@ -157,16 +157,16 @@ bufferevent* HttpServer::connectionCallback(event_base* base, void* arg) {
 }
 
 void HttpServer::requestCallback(evhttp_request* request, void* arg) {
-	/** Params */
-	RequestParams params;
-	RequestParamsBuilder::build(params, request);
-	Logger::info("Accept http(s) request: " + params.addr + ":" + std::to_string(params.port));
-	Logger::info("Peer address: " + params.peerAddr + ":" + std::to_string(params.peerPort));
-	Logger::info("Protocol: " + std::string{ (params.protocol == RequestParams::ProtocolType::HTTPS) ? "https" : "http" });
-	Logger::info("Path: " + params.path);
-
-	/** Find Module */
 	if (auto server = reinterpret_cast<HttpServer*>(arg)) {
+		/** Params */
+		RequestParams params;
+		RequestParamsBuilder::build(params, request, server->protocol == HttpServer::ProtocolType::HTTPS);
+		Logger::info("Accept http(s) request: " + params.addr + ":" + std::to_string(params.port));
+		Logger::info("Peer address: " + params.peerAddr + ":" + std::to_string(params.peerPort));
+		Logger::info("Protocol: " + std::string{ (params.protocol == RequestParams::ProtocolType::HTTPS) ? "https" : "http" });
+		Logger::info("Path: " + params.path);
+
+		/** Find Module */
 		if (auto module = server->findModule(params.addr)) {
 			Logger::info("Find module for address: " + params.addr);
 			module->processRequest(params);
@@ -178,10 +178,8 @@ void HttpServer::requestCallback(evhttp_request* request, void* arg) {
 			}
 			return;
 		}
-	}
 
-	/** Default */
-	if (auto server = reinterpret_cast<HttpServer*>(arg)) {
+		/** Default */
 		Logger::info("Can't find module for address: " + params.addr + ", using default page.");
 		auto buffer = std::unique_ptr<evbuffer, void(*)(evbuffer*)>(evbuffer_new(), evbuffer_free);
 		{
@@ -193,7 +191,7 @@ void HttpServer::requestCallback(evhttp_request* request, void* arg) {
 	}
 	
 	/** Error */
-	Logger::error("Can't get server object for address: " + params.addr + ", send 500.");
+	Logger::error("Can't get server object, send 500.");
 	evhttp_send_reply(request, 500, utils::getResponseReason(500), nullptr);
 	return;
 }
