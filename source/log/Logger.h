@@ -20,6 +20,8 @@ private:
 	void errorInternal(const std::string& mes);
 	void fatalInternal(const std::string& mes);
 
+	static void createDirIfNeed(const std::string& path);
+
 public:
 	static Logger* getInstance();
 	static void releaseInstance();

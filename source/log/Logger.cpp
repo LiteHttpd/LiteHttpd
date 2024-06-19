@@ -2,6 +2,7 @@
 
 #include <glog/logging.h>
 #include <iostream>
+#include <filesystem>
 
 static void myPrefixFormatter(std::ostream& s, const google::LogMessage& m, void*) {
 	s << '['
@@ -35,6 +36,9 @@ Logger::Logger() {
 	FLAGS_logbufsecs = 0;
 	FLAGS_max_log_size = 10;
 	FLAGS_stop_logging_if_full_disk = true;
+
+	/** Create Log Dir */
+	Logger::createDirIfNeed("logs");
 
 	/** Init GLog */
 	google::InitGoogleLogging("LiteHttpd");
@@ -84,6 +88,17 @@ void Logger::errorInternal(const std::string& mes) {
 
 void Logger::fatalInternal(const std::string& mes) {
 	LOG(FATAL) << mes;
+}
+
+void Logger::createDirIfNeed(const std::string& path) {
+	if (!std::filesystem::exists(path)) {
+		if (std::filesystem::create_directories(path)) {
+			std::cout << "Logs directory created successfully." << std::endl;
+		}
+		else {
+			std::cerr << "Failed to create logs directory." << std::endl;
+		}
+	}
 }
 
 Logger* Logger::getInstance() {
