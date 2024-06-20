@@ -1,6 +1,7 @@
 ﻿#include "RequestParamsBuilder.h"
 #include "Utils.h"
 #include "log/Logger.h"
+#include "fpm/FCGIBase.h"
 
 #include <memory>
 #include <sstream>
@@ -88,8 +89,8 @@ void RequestParamsBuilder::build(
 	}
 
 	/** Query */
-	{
-		const char* query = evhttp_uri_get_query(uri.get());
+	if (const char* query = evhttp_uri_get_query(uri.get())) {
+		params.query = query;
 
 		auto queryKV = std::unique_ptr<evkeyvalq, void(*)(evkeyvalq*)>(new evkeyvalq, evhttp_clear_headers);
 		evhttp_parse_query_str(query, queryKV.get());
@@ -190,6 +191,10 @@ void RequestParamsBuilder::build(
 			Logger::fatal("[" + addr + "] " + data);
 			break;
 		}
+		};
+	params.fpmFunc = [](const std::string& addr, uint16_t port, const std::vector<char>& data,
+		const RequestParams::ParamList& params) -> const RequestParams::FPMResult {
+			return FCGIBase::getInstance()->sendData(addr, port, params, data);
 		};
 }
 

@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required (VERSION 3.15)
 
-project (LiteHttpd VERSION 1.0.0 LANGUAGES CXX C)
+project (LiteHttpd VERSION 1.1.0 LANGUAGES CXX C)
 
 if (NOT CMAKE_BUILD_TYPE)
     set (CMAKE_BUILD_TYPE "Release"  CACHE STRING "Choose the type of build." FORCE)
@@ -33,14 +33,17 @@ set (OUTPUT_DIR "${CMAKE_BINARY_DIR}/bin")
 # Packages
 find_package (OpenSSL REQUIRED)
 find_package (Libevent CONFIG REQUIRED)
-find_package(Lua REQUIRED)
-find_package(glog CONFIG REQUIRED)
+find_package (Lua REQUIRED)
+find_package (glog CONFIG REQUIRED)
 
 # Get SDK
 add_subdirectory (LiteHttpd.Dev)
 
 # Get LiteHttpd.FileServer
 add_subdirectory (LiteHttpd.FileServer)
+
+# Get FastCGI
+add_subdirectory (FastCGI)
 
 # OpenSSL Debug
 find_program(OPENSSL_EXECUTABLE NAMES openssl)
@@ -123,7 +126,7 @@ if (WIN32)
 	target_compile_definitions (LiteHttpd PRIVATE "WIN32_LEAN_AND_MEAN")
 endif ()
 target_link_libraries (LiteHttpd PRIVATE
-	LiteHttpdDev::core
+	LiteHttpdDev::core FastCGI::fastcgi
 	OpenSSL::SSL OpenSSL::Crypto
 	libevent::core libevent::extra libevent::openssl
 	${LUA_LIBRARIES}

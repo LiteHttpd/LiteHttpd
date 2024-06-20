@@ -7,3 +7,6 @@
 [submodule "LiteHttpd.FileServer"]
 	path = LiteHttpd.FileServer
 	url = https://github.com/LiteHttpd/LiteHttpd.FileServer.git
+[submodule "FastCGI"]
+	path = FastCGI
+	url = https://github.com/LiteHttpd/FastCGI.git
