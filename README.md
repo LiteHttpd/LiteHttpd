@@ -1,7 +1,5 @@
 ﻿# LiteHttpd
-A super lightweight HTTP service framework.
-> [!IMPORTANT]
-> Under development, not released.  
+A super lightweight http(s) service framework. Supports Windows and Linux platform. 
 
 ## Get Source Code
 ### Windows (MSVC)
