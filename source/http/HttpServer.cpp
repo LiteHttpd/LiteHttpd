@@ -7,6 +7,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <memory>
+
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>

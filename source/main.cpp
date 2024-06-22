@@ -25,6 +25,11 @@ int main(int argc, char* argv[]){
 	/** Startup */
 	Logger::info("LiteHttpd v" + utils::getVersionStr() + ", SDK v" + utils::getDevKitVersionStr());
 
+	/** Init Environment */
+#if !WIN32
+	setenv("EVENT_NOEPOLL", "1", 1);
+#endif
+
 	/** Load Configs */
 	{
 		std::string configPath = "config.lua";

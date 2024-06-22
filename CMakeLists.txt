@@ -74,12 +74,21 @@ foreach (ITEM ${APP_CONFIG_SRC})
 	cmake_path (CONVERT ${ITEM} TO_NATIVE_PATH_LIST ITEM_INPUT)
 	cmake_path (CONVERT ${ITEM_TARGET} TO_NATIVE_PATH_LIST ITEM_OUTPUT)
 
-    add_custom_command (
-		OUTPUT ${ITEM_TARGET}
-		COMMAND copy ${ITEM_INPUT} ${ITEM_OUTPUT}
-		DEPENDS ${ITEM}
-		COMMENT "Copying application config file: ${ITEM}"
-		VERBATIM)
+	if (WIN32)
+		add_custom_command (
+			OUTPUT ${ITEM_TARGET}
+			COMMAND copy ${ITEM_INPUT} ${ITEM_OUTPUT}
+			DEPENDS ${ITEM}
+			COMMENT "Copying application config file: ${ITEM}"
+			VERBATIM)
+	else ()
+			add_custom_command (
+			OUTPUT ${ITEM_TARGET}
+			COMMAND cp ${ITEM_INPUT} ${ITEM_OUTPUT}
+			DEPENDS ${ITEM}
+			COMMENT "Copying application config file: ${ITEM}"
+			VERBATIM)
+	endif ()
 endforeach (ITEM ${APP_CONFIG_SRC})
 add_custom_target (app_config_copy
 	DEPENDS ${APP_CONFIG_OUTPUT}
@@ -91,8 +100,14 @@ set (LOCALHOST_CSR_OUT "${OUTPUT_DIR}/localhost.csr")
 set (LOCALHOST_CER_OUT "${OUTPUT_DIR}/localhost.cer")
 set (LOCALHOST_KEY_OUT "${OUTPUT_DIR}/localhost.key")
 get_filename_component (OPENSSL_DIR ${OPENSSL_EXECUTABLE} DIRECTORY)
+set (OPENSSL_CNF_DIR ${OPENSSL_DIR})
+if (NOT WIN32)
+	get_filename_component (OPENSSL_CNF_DIR ${OPENSSL_CNF_DIR} DIRECTORY)
+	get_filename_component (OPENSSL_CNF_DIR ${OPENSSL_CNF_DIR} DIRECTORY)
+	set (OPENSSL_CNF_DIR "${OPENSSL_CNF_DIR}/etc/ssl")
+endif ()
 get_filename_component (OPENSSL_NAME ${OPENSSL_EXECUTABLE} NAME)
-set (OPENSSL_CNF "${OPENSSL_DIR}/openssl.cnf")
+set (OPENSSL_CNF "${OPENSSL_CNF_DIR}/openssl.cnf")
 
 add_custom_command (
 	OUTPUT "${LOCALHOST_CER_OUT}" "${LOCALHOST_KEY_OUT}" "${LOCALHOST_CSR_OUT}"
@@ -132,6 +147,9 @@ target_link_libraries (LiteHttpd PRIVATE
 	${LUA_LIBRARIES}
 	glog::glog
 )
+if (NOT WIN32)
+	target_link_libraries (LiteHttpd PRIVATE libevent::pthreads)
+endif ()
 
 if (NOT MSVC)
 	target_compile_options (LiteHttpd PRIVATE

@@ -11,17 +11,11 @@ CtxHolder::CtxHolder(const std::string& keyPath, const std::string& cerPath,
 	/** Create SSL Context */
 	this->sslCtx = SSL_CTX_new(TLS_server_method());
 
-	/** Set ECDH */
-	SSL_CTX_set_options(this->sslCtx,
-		SSL_OP_SINGLE_DH_USE |
-		SSL_OP_SINGLE_ECDH_USE);
-	if (EC_KEY* ecdh = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1)) {
-		if (SSL_CTX_set_tmp_ecdh(this->sslCtx, ecdh) != 1) {
-			Logger::error("Can't set EC KEY for SSL CTX!");
-		}
-	}
-	else {
-		Logger::error("Can't create EC KEY!");
+	/** Set Curve */
+	const int nidList[] = { NID_X9_62_prime256v1 };
+
+	if (SSL_CTX_set1_groups(this->sslCtx, nidList, 1) != 1) {
+		Logger::error("Can't set curve for SSL CTX!");
 	}
 	
 	/** Load Certificate Chain And Key */

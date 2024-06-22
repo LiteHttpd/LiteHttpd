@@ -2,6 +2,7 @@
 #include "log/Logger.h"
 
 #include <memory>
+#include <cstring>
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -49,7 +50,7 @@ const FCGIBase::Result FCGIBase::sendData(
 	/** Start Connect */
 	if (startConnect(&fcgi, addr.c_str(), port) <= 0) {
 		Logger::error("Can't open socket for FCGI, address: " + addr + ":" + std::to_string(port));
-		return { {}, false };
+		return { std::vector<char>{}, false };
 	}
 
 	/** Send Request Start */
