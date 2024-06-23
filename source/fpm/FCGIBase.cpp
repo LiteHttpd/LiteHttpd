@@ -60,10 +60,12 @@ const FCGIBase::Result FCGIBase::sendData(
 	for (auto& i : paramsTemp) {
 		sendParams(&fcgi, i.first.c_str(), i.second.c_str());
 	}
+	sendEmptyParams(&fcgi);
 
 	/** Send Data */
 	if (postData.size() > 0) {
 		sendPostData(&fcgi, postData.data(), postData.size());
+		sendPostData(&fcgi, nullptr, 0);
 	}
 
 	/** Send End Request */
