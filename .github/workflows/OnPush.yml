@@ -191,7 +191,7 @@ jobs:
       with:
         subject-path: '"${{github.workspace}}/out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/*.exe","${{github.workspace}}/out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/*.dll"'
 
-    - name: Generate Artifact Attestation
+    - name: Generate Artifact Attestation Linux
       if: runner.os == 'Linux'
       uses: actions/attest-build-provenance@v1
       with:
