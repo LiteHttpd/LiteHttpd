@@ -10,7 +10,6 @@ git submodule update --init --recursive
 cd vcpkg
 .\bootstrap-vcpkg.bat
 cd ..
-vcpkg\vcpkg install 
 ```
 
 ### Linux
@@ -40,14 +39,16 @@ ninja -C out/build/x64-Release-MSVC -j 8 all
 
 ### Windows Debug (MinGW)
 ```
-"%VCINSTALLDIR%\Auxiliary\Build\vcvarsall.bat" amd64
+set CC=gcc
+set CXX=c++
 cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE:STRING=./vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET:STRING=x64-mingw-dynamic -B out/build/x64-Debug-MinGW .
 ninja -C out/build/x64-Debug-MSVC -j 8 all
 ```
 
 ### Windows Release (MinGW)
 ```
-"%VCINSTALLDIR%\Auxiliary\Build\vcvarsall.bat" amd64
+set CC=gcc
+set CXX=c++
 cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE:STRING=./vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET:STRING=x64-mingw-dynamic -B out/build/x64-Release-MinGW .
 ninja -C out/build/x64-Release-MSVC -j 8 all
 ```
