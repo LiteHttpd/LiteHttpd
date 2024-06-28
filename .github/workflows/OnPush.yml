@@ -146,10 +146,10 @@ jobs:
       working-directory: ${{github.workspace}}
       run: ninja -C out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}} -j 2 LiteHttpd
 
-    - name: Pre Packing Windows
-      if: runner.os == 'Windows'
+    - name: Pre Packing
       working-directory: ${{github.workspace}}
-      run: .\prePacking.bat .\out\build\${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}\bin
+      shell: pwsh
+      run: ./prePacking.ps1 ./out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin
 
     - name: Generate Artifact Attestation
       if: runner.os == 'Windows'
