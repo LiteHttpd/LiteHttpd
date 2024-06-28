@@ -125,11 +125,14 @@ add_custom_target (localhost_cer_generate
 	VERBATIM)
 
 # Source Files
-file (GLOB_RECURSE LITEHTTPD_SRC CONFIGURE_DEPENDS "./source/*.cpp" "./source/*.c" "./source/*.rc")
+file (GLOB_RECURSE LITEHTTPD_SRC CONFIGURE_DEPENDS
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/*.c"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/*.rc")
 
 # Target
 add_executable (LiteHttpd ${LITEHTTPD_SRC})
-target_include_directories (LiteHttpd PRIVATE ${LUA_INCLUDE_DIR} "./source")
+target_include_directories (LiteHttpd PRIVATE ${LUA_INCLUDE_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/source")
 target_compile_definitions (LiteHttpd PRIVATE ${COMPILE_SYS_DEF})
 target_compile_definitions (LiteHttpd PRIVATE
 	"PROJECT_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}"
