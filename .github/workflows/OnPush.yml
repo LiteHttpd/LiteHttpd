@@ -13,6 +13,14 @@ jobs:
       matrix:
         os: [windows-latest]
         compiler: [MSVC, MinGW]
+        include:
+          - os: windows-latest
+            compiler: MSVC
+            triplet: x64-windows
+          - os: windows-latest
+            compiler: MinGW
+            triplet: x64-mingw-dynamic
+        
 
     steps:
     - name: Checkout
@@ -20,16 +28,12 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Restore vcpkg Cache
-      uses: actions/cache@v3
-      id: vcpkg-cache
+    - name: Export GitHub Actions Cache Environment Variables
+      uses: actions/github-script@v7
       with:
-        path: |
-          ${{github.workspace}}/vcpkg_installed
-        key: |
-          vcpkg-${{runner.arch}}-${{matrix.compiler}}-${{runner.os}}-${{hashFiles('vcpkg.json')}}
-        restore-keys: |
-          vcpkg-${{runner.arch}}-${{matrix.compiler}}-${{runner.os}}-
+        script: |
+          core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+          core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
     - name: Setup Ninja
       uses: ashutoshvarma/setup-ninja@master
@@ -48,15 +52,11 @@ jobs:
       working-directory: ${{github.workspace}}/vcpkg
       run: .\bootstrap-vcpkg.bat
 
-    - name: Install Packages MSVC
-      if: runner.os == 'Windows' && matrix.compiler == 'MSVC'
+    - name: Install Packages
       working-directory: ${{github.workspace}}
-      run: vcpkg/vcpkg install --triplet=x64-windows
-
-    - name: Install Packages MinGW
-      if: runner.os == 'Windows' && matrix.compiler == 'MinGW'
-      working-directory: ${{github.workspace}}
-      run: vcpkg/vcpkg install --triplet=x64-mingw-dynamic
+      env:
+        VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+      run: vcpkg/vcpkg install --triplet=${{matrix.triplet}}
 
     - name: Archive vcpkg Logs
       if: ${{ !cancelled() }}
@@ -79,14 +79,18 @@ jobs:
         build_type: [Debug, Release]
         compiler: [MSVC, MinGW]
         include:
-          - compiler: MSVC
+          - os: windows-latest
+            compiler: MSVC
             c_compiler: cl
             cxx_compiler: cl
             asm_compiler: cl
-          - compiler: MinGW
+            triplet: x64-windows
+          - os: windows-latest
+            compiler: MinGW
             c_compiler: gcc
             cxx_compiler: c++
             asm_compiler: ''
+            triplet: x64-mingw-dynamic
 
     permissions:
       id-token: write
@@ -99,16 +103,12 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Restore vcpkg Cache
-      uses: actions/cache@v3
-      id: vcpkg-cache
+    - name: Export GitHub Actions Cache Environment Variables
+      uses: actions/github-script@v7
       with:
-        path: |
-          ${{github.workspace}}/vcpkg_installed
-        key: |
-          vcpkg-${{runner.arch}}-${{matrix.compiler}}-${{runner.os}}-${{hashFiles('vcpkg.json')}}
-        restore-keys: |
-          vcpkg-${{runner.arch}}-${{matrix.compiler}}-${{runner.os}}-
+        script: |
+          core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+          core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
     - name: Setup Ninja
       uses: ashutoshvarma/setup-ninja@master
@@ -133,23 +133,14 @@ jobs:
       with:
         arch: ${{runner.arch}}
 
-    - name: Configure CMake MSVC
-      if: runner.os == 'Windows' && matrix.compiler == 'MSVC'
+    - name: Configure CMake
       working-directory: ${{github.workspace}}
       env:
         CC: ${{matrix.c_compiler}}
         CXX: ${{matrix.cxx_compiler}}
         ASM: ${{matrix.asm_compiler}}
-      run: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCMAKE_TOOLCHAIN_FILE:STRING=./vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET:STRING=x64-windows -B out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}} .
-
-    - name: Configure CMake MinGW
-      if: runner.os == 'Windows' && matrix.compiler == 'MinGW'
-      working-directory: ${{github.workspace}}
-      env:
-        CC: ${{matrix.c_compiler}}
-        CXX: ${{matrix.cxx_compiler}}
-        ASM: ${{matrix.asm_compiler}}
-      run: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCMAKE_TOOLCHAIN_FILE:STRING=./vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET:STRING=x64-mingw-dynamic -B out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}} .
+        VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+      run: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCMAKE_TOOLCHAIN_FILE:STRING=./vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET:STRING=${{matrix.triplet}} -B out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}} .
 
     - name: Build
       working-directory: ${{github.workspace}}
