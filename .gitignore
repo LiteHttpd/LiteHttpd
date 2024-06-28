@@ -34,8 +34,12 @@
 # Visual Studio Temp
 .vs/**
 
+#CLion Temp
+.idea/**
+
 # Output
 [Oo]ut/**
+cmake-build-*/**
 
 # vcpkg Packages
 vcpkg_installed/**
