@@ -11,8 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest]
-        compiler: [MSVC, MinGW]
+        os: [windows-latest, ubuntu-latest]
+        compiler: [MSVC, MinGW, GCC]
         include:
           - os: windows-latest
             compiler: MSVC
@@ -20,8 +20,17 @@ jobs:
           - os: windows-latest
             compiler: MinGW
             triplet: x64-mingw-dynamic
-        
-
+          - os: ubuntu-latest
+            compiler: GCC
+            triplet: x64-linux
+        exclude:
+          - os: windows-latest
+            compiler: GCC
+          - os: ubuntu-latest
+            compiler: MSVC
+          - os: ubuntu-latest
+            compiler: MinGW
+    
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -52,6 +61,12 @@ jobs:
       working-directory: ${{github.workspace}}/vcpkg
       run: .\bootstrap-vcpkg.bat
 
+    - name: Install vcpkg Linux
+      if: runner.os == 'Linux'
+      working-directory: ${{github.workspace}}/vcpkg
+      shell: bash
+      run: ./bootstrap-vcpkg.sh
+
     - name: Install Packages
       working-directory: ${{github.workspace}}
       env:
@@ -75,9 +90,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest]
+        os: [windows-latest, ubuntu-latest]
         build_type: [Debug, Release]
-        compiler: [MSVC, MinGW]
+        compiler: [MSVC, MinGW, GCC]
         include:
           - os: windows-latest
             compiler: MSVC
@@ -91,6 +106,19 @@ jobs:
             cxx_compiler: c++
             asm_compiler: ''
             triplet: x64-mingw-dynamic
+          - os: ubuntu-latest
+            compiler: GCC
+            c_compiler: gcc
+            cxx_compiler: c++
+            asm_compiler: ''
+            triplet: x64-linux
+        exclude:
+          - os: windows-latest
+            compiler: GCC
+          - os: ubuntu-latest
+            compiler: MSVC
+          - os: ubuntu-latest
+            compiler: MinGW
 
     permissions:
       id-token: write
@@ -127,6 +155,12 @@ jobs:
       working-directory: ${{github.workspace}}/vcpkg
       run: .\bootstrap-vcpkg.bat
 
+    - name: Install vcpkg Linux
+      if: runner.os == 'Linux'
+      working-directory: ${{github.workspace}}/vcpkg
+      shell: bash
+      run: ./bootstrap-vcpkg.sh
+
     - name: Initialize MSVC Environment
       if: matrix.compiler == 'MSVC'
       uses: ilammy/msvc-dev-cmd@v1
@@ -151,11 +185,17 @@ jobs:
       shell: pwsh
       run: ./prePacking.ps1 ./out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin
 
-    - name: Generate Artifact Attestation
+    - name: Generate Artifact Attestation Windows
       if: runner.os == 'Windows'
       uses: actions/attest-build-provenance@v1
       with:
         subject-path: '"${{github.workspace}}/out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/*.exe","${{github.workspace}}/out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/*.dll"'
+
+    - name: Generate Artifact Attestation Linux
+      if: runner.os == 'Linux'
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: '"${{github.workspace}}/out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/LiteHttpd","${{github.workspace}}/out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/*.so"'
     
     - name: Archive Artifacts
       uses: actions/upload-artifact@v4
