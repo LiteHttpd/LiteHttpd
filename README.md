@@ -1,8 +1,10 @@
 ﻿# LiteHttpd
-A super lightweight http(s) service framework. Supports Windows and Linux platform. 
+A super lightweight http(s) service framework. Supports Windows and Linux platform.   
+
+[中文文档](docs/zh-CN.md)
 
 ## Get Source Code
-### Windows (MSVC)
+### Windows
 ```
 git clone https://github.com/LiteHttpd/LiteHttpd.git
 cd LiteHttpd

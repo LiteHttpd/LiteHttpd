@@ -34,8 +34,11 @@
 # Visual Studio Temp
 .vs/**
 
-#CLion Temp
+# CLion Temp
 .idea/**
+
+# VS Code Temp
+.vscode/**
 
 # Output
 [Oo]ut/**
