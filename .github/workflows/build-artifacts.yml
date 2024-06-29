@@ -1,8 +1,11 @@
-﻿name: OnPush
+﻿name: Build Artifacts
 
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_call:
 
 jobs:
   build-package:
@@ -73,11 +76,17 @@ jobs:
         VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
       run: vcpkg/vcpkg install --triplet=${{matrix.triplet}}
 
+    - name: Get Short SHA
+      uses: benjlevesque/short-sha@v3.0
+      id: short-sha
+      with:
+        length: 7
+
     - name: Archive vcpkg Logs
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v4
       with:
-        name: vcpkglogs-${{runner.os}}-${{runner.arch}}-${{matrix.compiler}}-${{github.sha}}
+        name: vcpkglogs-${{runner.os}}-${{runner.arch}}-${{matrix.compiler}}-${{ steps.short-sha.outputs.sha }}
         path: |
           vcpkg/buildtrees/*/*.log
         retention-days: 7
@@ -186,21 +195,37 @@ jobs:
       run: ./prePacking.ps1 ./out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin
 
     - name: Generate Artifact Attestation Windows
-      if: runner.os == 'Windows'
+      if: runner.os == 'Windows' && github.event_name != 'pull_request'
       uses: actions/attest-build-provenance@v1
       with:
         subject-path: '"${{github.workspace}}/out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/*.exe","${{github.workspace}}/out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/*.dll"'
 
     - name: Generate Artifact Attestation Linux
-      if: runner.os == 'Linux'
+      if: runner.os == 'Linux' && github.event_name != 'pull_request'
       uses: actions/attest-build-provenance@v1
       with:
         subject-path: '"${{github.workspace}}/out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/LiteHttpd","${{github.workspace}}/out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/*.so"'
     
+    - name: Get Short SHA
+      uses: benjlevesque/short-sha@v3.0
+      id: short-sha
+      with:
+        length: 7
+
     - name: Archive Artifacts
+      if: github.event_name != 'pull_request'
       uses: actions/upload-artifact@v4
       with:
-        name: LiteHttpd-${{runner.os}}-${{runner.arch}}-${{matrix.compiler}}-${{matrix.build_type}}-${{github.sha}}
+        name: LiteHttpd-${{runner.os}}-${{runner.arch}}-${{matrix.compiler}}-${{matrix.build_type}}-${{ steps.short-sha.outputs.sha }}
+        path: |
+          out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/**
+        compression-level: 9
+
+    - name: Archive Artifacts (Not Signed)
+      if: github.event_name == 'pull_request'
+      uses: actions/upload-artifact@v4
+      with:
+        name: LiteHttpd-${{runner.os}}-${{runner.arch}}-${{matrix.compiler}}-${{matrix.build_type}}-${{ steps.short-sha.outputs.sha }}-Unsafe
         path: |
           out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/**
         compression-level: 9
