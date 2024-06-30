@@ -6,4 +6,7 @@
 [![forthebadge](https://github.com/FangCunWuChang/for-the-badge/blob/master/src/images/badges/powered-by-black-magic.svg)](https://github.com/FangCunWuChang/for-the-badge/)  
 A super lightweight http(s) service framework. Supports Windows and Linux platform.   
 
+> [!IMPORTANT]
+> Please read the document ↓↓below↓↓ before starting!
+
 [Documents](docs/en-US.md) [中文文档](docs/zh-CN.md)
