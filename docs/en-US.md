@@ -332,46 +332,51 @@ Below is an example of the default configuration file:
 
 <div STYLE="page-break-after: always;"></div>
 
-## 7 日志系统
-LiteHttpd 使用 [glog] 记录应用日志，并将日志按照 `INFO` `WARNING` `ERROR` `FATAL` 四个等级记录在 LiteHttpd 安装目录下 `logs` 目录中。当 LiteHttpd 使用 `Debug` 选项构建时，`DEBUG` 等级日志将与 `INFO` 等级一同记录，并在消息前添加 `(Debug)` 提示。  
+## 7 Log System
 
-### 日志命名
-一条标准的 LiteHttpd 日志文件命名如下：  
+LiteHttpd uses [glog][glog] for application logging and categorizes logs into four levels: `INFO` `WARNING` `ERROR` `FATAL`. These logs are stored in the logs directory within the LiteHttpd installation directory. When LiteHttpd is built with the `Debug` option, `DEBUG` level logs are also recorded along with `INFO` level logs, and a `(Debug)` label is added to the beginning of the debug messages.
+
+
+### Log Naming
+
+A standard LiteHttpd file name is as follows:
 
 ```
 LiteHttpd.HOSTNAME.USERNAME.log.LEVEL.yyyymmdd-hhmmss.uuuuuu
 ```
 
-- **HOSTNAME:** 当前主机名称
-- **USERNAME:** 当前用户名称
-- **LEVEL:** 日志等级
-- **yyyymmdd:** 进程启动日期，年月日
-- **hhmmss:** 进程启动时间，时分秒
-- **uuuuuu:** 进程启动时间，微秒
+- **HOSTNAME:** The name of the current host
+- **USERNAME:** The name of the current user
+- **LEVEL:** Log level
+- **yyyymmdd:** Process start date in year-month-day format
+- **hhmmss:** Process start time in hour-minute-second format
+- **uuuuuu:** Process start time in microsecond format
 
-### 日志格式
-一条标准的 LiteHttpd 日志格式如下：  
+### Log Format
+
+A standard LiteHttpd log format is as follows:
 
 ```
 [IWEF yyyymmdd hh:mm:ss.uuuuuu threadid] msg
 ```
 
-- **IWEF:** 日志等级，以单个字母表示
-- **yyyymmdd:** 年月日
-- **hh:mm:ss.uuuuuu:** 时间，精确至微秒
-- **threadid:** 产生日志的线程 ID
-- **msg:** 日志内容
+- **IWEF:** Log level, represented by a single letter
+- **yyyymmdd:** Date in year-month-day format
+- **hh:mm:ss.uuuuuu:** Time, precise to microseconds
+- **threadid:** ID of the thread generating the log
+- **msg:** Log message
 
 <div STYLE="page-break-after: always;"></div>
 
-## 8 架构设计
-LiteHttpd 架构分为四个层次：  
+## 8 Architecture Design
+
+The architecture of LiteHttpd is divided into four layers:
 
 ```mermaid
 block-beta
     columns 8
 
-    m1["模块"]:2 m2["模块"]:2 m3["模块"]:2 m4["模块"]:2
+    m1["Module"]:2 m2["Module"]:2 m3["Module"]:2 m4["Module"]:2
 
     block:litehttpd:6
         http fpm ssl config module log
@@ -380,71 +385,81 @@ block-beta
 
     libevent:2 OpenSSL:2 Lua:2 glog:2
 
-    system["操作系统接口"]:8
+    system["Operating System Interface"]:8
 ```
+  
 
-操作系统接口层之上为依赖层，依赖层为 http、SSL、Lua、日志四个子系统提供支持。  
-依赖层之上为服务层，服务层由 LiteHttpd 程序与 SDK 共同组成。其中 LiteHttpd 分为 http、fpm、ssl、config、module、log 六大模块。  
-服务层之上为模块层，由一个或多个请求处理模块构成。模块通过 SDK 与 LiteHttpd 本体交互，实现对不同 http 请求的响应。  
-
-<div STYLE="page-break-after: always;"></div>
-
-## 9 CI/CD 流水线
-LiteHttpd 使用 [GitHub Actions] 搭建 CI/CD 流水线，该流水线分为 [构建](https://github.com/LiteHttpd/LiteHttpd/actions/workflows/build-artifacts.yml) 与 [发布](https://github.com/LiteHttpd/LiteHttpd/actions/workflows/upload-release.yml) 两部分。  
-
-### 构建流水线
-当 [仓库主分支](https://github.com/LiteHttpd/LiteHttpd/tree/main) 产生新的推送（push）到远程仓库或产生拉取请求（PR）时，将会触发构建流水线。构建流水线分为以下的步骤：  
-1. 在 Windows 和 Linux 平台上分别进行 vcpkg 包的预构建并产生包缓存
-2. 在 Windows 和 Linux 平台上分别构建 LiteHttpd 程序及官方模块
-3. 清理构建过程中产生的临时文件
-4. 对 LiteHttpd 程序及官方模块进行 [Sigstore] 签名
-5. 对构建结果打包储存为构件（Artifacts）
-
-![构建流水线](ci-build.jpeg)
-
-### 发布流水线
-当仓库产生新的标签（tag）时，将会触发发布流水线。发布流水线分为以下步骤：  
-1. 执行构建流水线
-2. 创建新的发行版（Release）
-3. 下载构建流水线的构建结果构件
-4. 重新打包构建结果为适应相应平台的格式
-5. 上传包到发行版中
-
-![发布流水线](ci-release.jpeg)
+1. Operating System Interface Layer: This is the foundational layer.  
+2. Dependency Layer: This layer provides support for the HTTP, SSL, Lua, and logging subsystems.  
+3. Service Layer: Positioned above the dependency layer, the service layer consists of the LiteHttpd program and the SDK. LiteHttpd itself is divided into six modules: http, fpm, ssl, config, module, and log.  
+4. Module Layer: The topmost layer comprises one or more request handling modules. These modules interact with the core LiteHttpd via the SDK to handle various HTTP requests.
 
 <div STYLE="page-break-after: always;"></div>
 
-# 10 相关链接
-- [Lua]: The Programming Language Lua.
-- [MinGW]: MinGW-W64 compiler binaries.
-- [vcpkg]: Open source C/C++ dependency manager from Microsoft
-- [Git]: A free and open source distributed version control system.
-- [CMake]: A Powerful Software Build System.
-- [Ninja]: A small build system with a focus on speed.
-- [Visual Studio]: 面向软件开发人员和 Teams 的 IDE 和代码编辑器。
-- [libevent]: The libevent API provides a mechanism to execute a callback function when a specific event occurs on a file descriptor or after a timeout has been reached.
-- [OpenSSL]: Cryptography and SSL/TLS Toolkit.
-- [glog]: Google Logging Library.
-- [PHP]: A popular general-purpose scripting language that is especially suited to web development.
-- [LiteHttpd SDK]: Module SDK for LiteHttpd.
-- [LiteHttpd.FileServer]: A simple LiteHttpd file server module.
-- [Sigstore]: sign. verify. protect.
+## 9 CI/CD Pipeline
 
-[LiteHttpd]: <https://github.com/LiteHttpd/LiteHttpd>
-[Lua]: <https://www.lua.org/>
-[Lua 5.4]: <https://www.lua.org/manual/5.4/>
-[MinGW]: <https://github.com/niXman/mingw-builds-binaries>
-[Visual C++ 可再发行组件]: <https://aka.ms/vs/17/release/VC_redist.x64.exe>
-[vcpkg]: <https://vcpkg.io/>
-[Git]: <https://git-scm.com/>
-[CMake]: <https://cmake.org/>
-[Ninja]: <https://ninja-build.org/>
-[Visual Studio]: <https://visualstudio.microsoft.com/>
-[libevent]: <https://libevent.org/>
-[OpenSSL]: <https://www.openssl.org/>
-[glog]: <https://google.github.io/glog>
-[PHP]: <https://www.php.net/>
-[LiteHttpd SDK]: <https://github.com/LiteHttpd/LiteHttpd.Dev>
-[LiteHttpd.FileServer]: <https://github.com/LiteHttpd/LiteHttpd.FileServer>
-[GitHub Actions]: <https://github.com/LiteHttpd/LiteHttpd/actions>
-[Sigstore]: <https://www.sigstore.dev/>
+LiteHttpd uses [GitHub Actions][GitHub Actions] to set up its CI/CD pipeline, which is divided into two parts: [Build](https://github.com/LiteHttpd/LiteHttpd/actions/workflows/build-artifacts.yml) and [Release](https://github.com/LiteHttpd/LiteHttpd/actions/workflows/upload-release.yml).
+
+### Build Pipeline
+
+The build pipeline is triggered when a new push to the [main branch](https://github.com/LiteHttpd/LiteHttpd/tree/main) or a new pull request (PR) is made to the remote repository. The build pipeline includes the following steps:
+
+1. Prebuild vcpkg packages and generate package caches on both Windows and Linux platforms.
+2. Build the LiteHttpd program and its official modules on both Windows and Linux platforms.
+3. Clean up temporary files generated during the build process.
+4. Sign the LiteHttpd program and official modules with [Sigstore][Sigstore].
+5. Package the build results and store them as artifacts.
+
+
+![Build Pipeline](ci-build.jpeg)
+
+### Release Pipeline
+
+The release pipeline is triggered when a new tag is created in the repository. The release pipeline includes the following steps:
+
+1. Execute the build pipeline.
+2. Create a new release.
+3. Download the build artifacts from the build pipeline.
+4. Repackage the build artifacts to formats suitable for the respective platforms.
+5. Upload the packages to the release.
+
+
+![Release Pipeline](ci-release.jpeg)
+
+<div STYLE="page-break-after: always;"></div>
+
+# 10 Related Links
+
+- [Lua][Lua]: The Programming Language Lua.
+- [MinGW][MinGW]: MinGW-W64 compiler binaries.
+- [vcpkg][vcpkg]: Open source C/C++ dependency manager from Microsoft
+- [Git][Git]: A free and open source distributed version control system.
+- [CMake][CMake]: A Powerful Software Build System.
+- [Ninja][Ninja]: A small build system with a focus on speed.
+- [Visual Studio][Visual Studio]: An IDE and code editor for software developers and teams. 
+- [libevent][libevent]: The libevent API provides a mechanism to execute a callback function when a specific event occurs on a file descriptor or after a timeout has been reached.
+- [OpenSSL][OpenSSL]: Cryptography and SSL/TLS Toolkit.
+- [glog][glog]: Google Logging Library.
+- [PHP][PHP]: A popular general-purpose scripting language that is especially suited to web development.
+- [LiteHttpd SDK][LiteHttpd SDK]: Module SDK for LiteHttpd.
+- [LiteHttpd.FileServer][LiteHttpd.FileServer]: A simple LiteHttpd file server module.
+- [Sigstore][Sigstore]: sign. verify. protect.
+
+[LiteHttpd]: https://github.com/LiteHttpd/LiteHttpd
+[Lua]: https://www.lua.org/
+[Lua 5.4]: https://www.lua.org/manual/5.4/
+[MinGW]: https://github.com/niXman/mingw-builds-binaries
+[Visual C++ 可再发行组件]: https://aka.ms/vs/17/release/VC_redist.x64.exe
+[vcpkg]: https://vcpkg.io/
+[Git]: https://git-scm.com/
+[CMake]: https://cmake.org/
+[Ninja]: https://ninja-build.org/
+[Visual Studio]: https://visualstudio.microsoft.com/
+[libevent]: https://libevent.org/
+[OpenSSL]: https://www.openssl.org/
+[glog]: https://google.github.io/glog
+[PHP]: https://www.php.net/
+[LiteHttpd SDK]: https://github.com/LiteHttpd/LiteHttpd.Dev
+[LiteHttpd.FileServer]: https://github.com/LiteHttpd/LiteHttpd.FileServer
+[GitHub Actions]: https://github.com/LiteHttpd/LiteHttpd/actions
+[Sigstore]: https://www.sigstore.dev/
