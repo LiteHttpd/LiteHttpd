@@ -1,6 +1,6 @@
 # LiteHttpd - A Lightweight, High-Performance Cross-Platform HTTP(S) Modular Service Framework
 [LiteHttpd] is an HTTP service framework completely written in C++. With just the C++ standard library, you can easily [develop modules](#5-Module-Development) to handle HTTP requests.  
-- LiteHttpd uses the [Lua] language to write [configuration files](#4-Configuration-Files) and supports [Lua 5.4] standard library functions, allowing you to quickly integrate new modules into the existing service system.
+- LiteHttpd uses the [Lua] language to write [configuration files](#4-Configuration-File) and supports [Lua 5.4] standard library functions, allowing you to quickly integrate new modules into the existing service system.
 - LiteHttpd uses [libevent] to provide support for highly concurrent HTTP services.
 - LiteHttpd uses [OpenSSL] to provide SSL protocol support.
 - LiteHttpd uses [glog] for logging.
@@ -300,16 +300,6 @@ Below is an example of the default configuration file:
 }
 ```
 
-- **survival:** 文件缓存生存时长，单位为秒，默认值为 `60`
-- **root:** 网站根目录位置，支持匹配替换 `$hostname$` `$port$` 为实际参数，默认值为 `"./$hostname$"`
-- **page404:** 404 错误页面路径，支持匹配替换 `$hostname$` `$port$` `$root$` 为实际参数，默认值为 `"404.html"`
-- **page403:** 403 错误页面路径，支持匹配替换参数同 404，默认值为 `"403.html"`
-- **defaultPage:** 网站默认页面名称，当请求 path 为路径时将使用路径下默认页面返回，默认值为 `"index.html"`
-- **fpm.surfix:** 要通过 FastCGI 处理的文件类型，默认为 `".php"`
-- **fpm.address:** FastCGI 服务地址，默认为 `"127.0.0.1"`
-- **fpm.port:** FastCGI 服务端口，默认为 `9000`
-- **fpm.fcgi_children:** 传递给 PHP-FPM 的 `PHP_FCGI_CHILDREN` 参数，默认为 `2`
-- **fpm.fcgi_max_requests:** 传递给 PHP-FPM 的 `PHP_FCGI_MAX_REQUESTS` 参数，默认为 `1000`
 - **survival:** The lifespan of the file cache in seconds. The default value is `60`.
 - **root:** The location of the website's root directory. Supports matching and replacing `$hostname$` and `$port$` with actual parameters. The default value is `"./$hostname$"`.
 - **page404:** The path to the 404 error page. Supports matching and replacing `$hostname$`, `$port$`, and `$root$` with actual parameters. The default value is `"404.html"`.
@@ -333,13 +323,10 @@ Below is an example of the default configuration file:
 <div STYLE="page-break-after: always;"></div>
 
 ## 7 Log System
-
-LiteHttpd uses [glog][glog] for application logging and categorizes logs into four levels: `INFO` `WARNING` `ERROR` `FATAL`. These logs are stored in the logs directory within the LiteHttpd installation directory. When LiteHttpd is built with the `Debug` option, `DEBUG` level logs are also recorded along with `INFO` level logs, and a `(Debug)` label is added to the beginning of the debug messages.
-
+LiteHttpd uses [glog] for application logging and categorizes logs into four levels: `INFO` `WARNING` `ERROR` `FATAL`. These logs are stored in the `logs` directory within the LiteHttpd installation directory. When LiteHttpd is built with the `Debug` option, `DEBUG` level logs are also recorded along with `INFO` level logs, and a `(Debug)` label is added to the beginning of the debug messages.  
 
 ### Log Naming
-
-A standard LiteHttpd file name is as follows:
+A standard LiteHttpd file name is as follows:  
 
 ```
 LiteHttpd.HOSTNAME.USERNAME.log.LEVEL.yyyymmdd-hhmmss.uuuuuu
@@ -353,8 +340,7 @@ LiteHttpd.HOSTNAME.USERNAME.log.LEVEL.yyyymmdd-hhmmss.uuuuuu
 - **uuuuuu:** Process start time in microsecond format
 
 ### Log Format
-
-A standard LiteHttpd log format is as follows:
+A standard LiteHttpd log format is as follows:  
 
 ```
 [IWEF yyyymmdd hh:mm:ss.uuuuuu threadid] msg
@@ -363,13 +349,12 @@ A standard LiteHttpd log format is as follows:
 - **IWEF:** Log level, represented by a single letter
 - **yyyymmdd:** Date in year-month-day format
 - **hh:mm:ss.uuuuuu:** Time, precise to microseconds
-- **threadid:** ID of the thread generating the log
+- **threadid:** ID of the log thread
 - **msg:** Log message
 
 <div STYLE="page-break-after: always;"></div>
 
 ## 8 Architecture Design
-
 The architecture of LiteHttpd is divided into four layers:
 
 ```mermaid
@@ -387,7 +372,6 @@ block-beta
 
     system["Operating System Interface"]:8
 ```
-  
 
 1. Operating System Interface Layer: This is the foundational layer.  
 2. Dependency Layer: This layer provides support for the HTTP, SSL, Lua, and logging subsystems.  
@@ -397,25 +381,21 @@ block-beta
 <div STYLE="page-break-after: always;"></div>
 
 ## 9 CI/CD Pipeline
-
-LiteHttpd uses [GitHub Actions][GitHub Actions] to set up its CI/CD pipeline, which is divided into two parts: [Build](https://github.com/LiteHttpd/LiteHttpd/actions/workflows/build-artifacts.yml) and [Release](https://github.com/LiteHttpd/LiteHttpd/actions/workflows/upload-release.yml).
+LiteHttpd uses [GitHub Actions] to set up its CI/CD pipeline, which is divided into two parts: [Build](https://github.com/LiteHttpd/LiteHttpd/actions/workflows/build-artifacts.yml) and [Release](https://github.com/LiteHttpd/LiteHttpd/actions/workflows/upload-release.yml).  
 
 ### Build Pipeline
-
-The build pipeline is triggered when a new push to the [main branch](https://github.com/LiteHttpd/LiteHttpd/tree/main) or a new pull request (PR) is made to the remote repository. The build pipeline includes the following steps:
+The build pipeline is triggered when a new push to the [main branch](https://github.com/LiteHttpd/LiteHttpd/tree/main) or a new pull request (PR) is made to the remote repository. The build pipeline includes the following steps:  
 
 1. Prebuild vcpkg packages and generate package caches on both Windows and Linux platforms.
 2. Build the LiteHttpd program and its official modules on both Windows and Linux platforms.
 3. Clean up temporary files generated during the build process.
-4. Sign the LiteHttpd program and official modules with [Sigstore][Sigstore].
+4. Sign the LiteHttpd program and official modules with [Sigstore].
 5. Package the build results and store them as artifacts.
-
 
 ![Build Pipeline](ci-build.jpeg)
 
 ### Release Pipeline
-
-The release pipeline is triggered when a new tag is created in the repository. The release pipeline includes the following steps:
+The release pipeline is triggered when a new tag is created in the repository. The release pipeline includes the following steps:  
 
 1. Execute the build pipeline.
 2. Create a new release.
@@ -423,33 +403,31 @@ The release pipeline is triggered when a new tag is created in the repository. T
 4. Repackage the build artifacts to formats suitable for the respective platforms.
 5. Upload the packages to the release.
 
-
 ![Release Pipeline](ci-release.jpeg)
 
 <div STYLE="page-break-after: always;"></div>
 
 # 10 Related Links
-
-- [Lua][Lua]: The Programming Language Lua.
-- [MinGW][MinGW]: MinGW-W64 compiler binaries.
-- [vcpkg][vcpkg]: Open source C/C++ dependency manager from Microsoft
-- [Git][Git]: A free and open source distributed version control system.
-- [CMake][CMake]: A Powerful Software Build System.
-- [Ninja][Ninja]: A small build system with a focus on speed.
-- [Visual Studio][Visual Studio]: An IDE and code editor for software developers and teams. 
-- [libevent][libevent]: The libevent API provides a mechanism to execute a callback function when a specific event occurs on a file descriptor or after a timeout has been reached.
-- [OpenSSL][OpenSSL]: Cryptography and SSL/TLS Toolkit.
-- [glog][glog]: Google Logging Library.
-- [PHP][PHP]: A popular general-purpose scripting language that is especially suited to web development.
-- [LiteHttpd SDK][LiteHttpd SDK]: Module SDK for LiteHttpd.
-- [LiteHttpd.FileServer][LiteHttpd.FileServer]: A simple LiteHttpd file server module.
-- [Sigstore][Sigstore]: sign. verify. protect.
+- [Lua]: The Programming Language Lua.
+- [MinGW]: MinGW-W64 compiler binaries.
+- [vcpkg]: Open source C/C++ dependency manager from Microsoft
+- [Git]: A free and open source distributed version control system.
+- [CMake]: A Powerful Software Build System.
+- [Ninja]: A small build system with a focus on speed.
+- [Visual Studio]: IDE and Code Editor for Software Developers and Teams. 
+- [libevent]: The libevent API provides a mechanism to execute a callback function when a specific event occurs on a file descriptor or after a timeout has been reached.
+- [OpenSSL]: Cryptography and SSL/TLS Toolkit.
+- [glog]: Google Logging Library.
+- [PHP]: A popular general-purpose scripting language that is especially suited to web development.
+- [LiteHttpd SDK]: Module SDK for LiteHttpd.
+- [LiteHttpd.FileServer]: A simple LiteHttpd file server module.
+- [Sigstore]: sign. verify. protect.
 
 [LiteHttpd]: https://github.com/LiteHttpd/LiteHttpd
 [Lua]: https://www.lua.org/
 [Lua 5.4]: https://www.lua.org/manual/5.4/
 [MinGW]: https://github.com/niXman/mingw-builds-binaries
-[Visual C++ 可再发行组件]: https://aka.ms/vs/17/release/VC_redist.x64.exe
+[Visual C++ Redistributable]: https://aka.ms/vs/17/release/VC_redist.x64.exe
 [vcpkg]: https://vcpkg.io/
 [Git]: https://git-scm.com/
 [CMake]: https://cmake.org/
