@@ -1,26 +1,26 @@
-# LiteHttpd - 一个轻量级、高性能的跨平台 http(s) 模块化服务框架
-[LiteHttpd] 是一个完全由 C++ 语言编写的 http 服务框架。只需使用 C++ 标准库，即可轻松的 [开发模块](#5-模块开发) 以处理 http 请求。  
-- LiteHttpd 使用 [Lua] 语言编写 [配置文件](#4-配置文件)，支持 [Lua 5.4] 标准库函数，可以快速地将新模块加入现有服务系统。
-- LiteHttpd 使用 [libevent] 提供高并发 http 服务支持。
-- LiteHttpd 使用 [OpenSSL] 提供 SSL 通信支持。
-- LiteHttpd 使用 [glog] 记录日志。
-- LiteHttpd 带有一个官方的 [文件服务器](#6-文件服务器) 模块，并提供对于 [PHP] 动态网站的支持。
+# LiteHttpd - A Lightweight, High-Performance Cross-Platform HTTP(S) Modular Service Framework
+[LiteHttpd] is an HTTP service framework completely written in C++. With just the C++ standard library, you can easily [develop modules](#5-Module-Development) to handle HTTP requests.  
+- LiteHttpd uses the [Lua] language to write [configuration files](#4-Configuration-Files) and supports [Lua 5.4] standard library functions, allowing you to quickly integrate new modules into the existing service system.
+- LiteHttpd uses [libevent] to provide support for highly concurrent HTTP services.
+- LiteHttpd uses [OpenSSL] to provide SSL protocol support.
+- LiteHttpd uses [glog] for logging.
+- LiteHttpd comes with an official [file server](#6-File-Server) module and supports [PHP] dynamic websites.
 
 <toc/>
 
 <div STYLE="page-break-after: always;"></div>
 
-## 1 安装
-在我们的 [Release页面](https://github.com/LiteHttpd/LiteHttpd/releases/latest) 可以获得最新发布版本的 LiteHttpd 预编译程序。或者可以通过 [自行构建](#2-自行构建) 从最新的代码提交获得最新的 LiteHttpd。  
+## 1 Installation
+You can get the latest precompiled version of LiteHttpd from our [Release Page](https://github.com/LiteHttpd/LiteHttpd/releases/latest). Alternatively, you can obtain the latest LiteHttpd by [building it yourself](#2-Building-Yourself) from the latest code commits.  
 
 > [!IMPORTANT]
-> 在 Windows 平台上运行 MSVC 版本的 LiteHttpd 需要 [Visual C++ 可再发行组件] 的支持。  
+> Running the MSVC version of LiteHttpd on the Windows platform requires the support of [Visual C++ Redistributable].  
 
 > [!IMPORTANT]
-> 在 Windows 平台上运行 MinGW 版本的 LiteHttpd 需要 MinGW 运行时的支持，你可以通过安装最新版的 [MinGW] 获得 MinGW 运行时。  
+> Running the MinGW version of LiteHttpd on the Windows platform requires the support of the MinGW runtime. You can obtain the MinGW runtime by installing the latest version of [MinGW].  
 
 > [!IMPORTANT]
-> 在 Linux 平台上运行 LiteHttpd 需要以下依赖库（以下为 Ubuntu 24.04 LTS 版本包名，其他版本请自行安装对应依赖）：  
+> Running LiteHttpd on the Linux platform requires the following dependencies (the package names below are for Ubuntu 24.04 LTS; please install the corresponding dependencies for other versions):  
 > - libevent-core-2.1-7t64
 > - libevent-extra-2.1-7t64
 > - libevent-openssl-2.1-7t64
@@ -31,11 +31,11 @@
 
 <div STYLE="page-break-after: always;"></div>
 
-## 2 自行构建
-### 获取源码
-通过如下命令，你可以获得 `main` 分支上的最新源码并初始化 [vcpkg] 包管理器。这些命令需要 [Git] 的支持。 
+## 2 Building Yourself
+### Getting the Source Code
+You can get the latest source code from the `main` branch and initialize the [vcpkg] package manager with the following commands. These commands require [Git].  
 
-#### 在 Windows 上获取源码
+#### Getting the Source Code on Windows
 ```
 git clone https://github.com/LiteHttpd/LiteHttpd.git
 cd LiteHttpd
@@ -45,7 +45,7 @@ cd vcpkg
 cd ..
 ```
 
-#### 在 Linux 上获取源码
+#### Getting the Source Code on Linux
 ```
 git clone https://github.com/LiteHttpd/LiteHttpd.git
 cd LiteHttpd
@@ -55,30 +55,30 @@ cd vcpkg
 cd ..
 ```
 
-### 构建可执行程序
-LiteHttpd 的构建是基于 [CMake] 和 [Ninja] 的，你需要确认它们已得到正确安装。  
+### Building the Binaries
+The build process for LiteHttpd is based on [CMake] and [Ninja], so you need to ensure that they are correctly installed.  
 
-#### 在 Windows 上使用 MSVC 构建
-在开始前，需要确认 MSVC 的安装目录并正确设置环境变量 `%VCINSTALLDIR%`。你可以从这里安装带有最新版本 MSVC 的 [Visual Studio]。  
+#### Building with MSVC on Windows
+Before starting, you need to confirm the MSVC installation directory and correctly set the `%VCINSTALLDIR%` environment variable. You can install [Visual Studio] with the latest version of MSVC from here.  
 
-##### 使用 MSVC 构建 Debug 版本
+##### Building the Debug Version with MSVC
 ```
 "%VCINSTALLDIR%\Auxiliary\Build\vcvarsall.bat" amd64
 cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE:STRING=./vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET:STRING=x64-windows -B out/build/x64-Debug-MSVC .
 ninja -C out/build/x64-Debug-MSVC -j 8 all
 ```
 
-##### 使用 MSVC 构建 Release 版本
+##### Building the Release Version with MSVC
 ```
 "%VCINSTALLDIR%\Auxiliary\Build\vcvarsall.bat" amd64
 cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE:STRING=./vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET:STRING=x64-windows -B out/build/x64-Release-MSVC .
 ninja -C out/build/x64-Release-MSVC -j 8 all
 ```
 
-#### 在 Windows 上使用 MinGW 构建
-在开始前，需要安装最新版本的 [MinGW] 并正确设置环境变量。另外此版本构建仍需要 MSVC 支持，你可以从这里安装带有最新版本 MSVC 的 [Visual Studio]。  
+#### Building with MinGW on Windows
+Before starting, you need to install the latest version of [MinGW] and correctly set the environment variables. Additionally, this version still requires MSVC support. You can install [Visual Studio] with the latest version of MSVC from here.  
 
-##### 使用 MinGW 构建 Debug 版本
+##### Building the Debug Version with MinGW
 ```
 set CC=gcc
 set CXX=c++
@@ -86,7 +86,7 @@ cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE:STRING=./vcpkg/
 ninja -C out/build/x64-Debug-MinGW -j 8 all
 ```
 
-##### 使用 MinGW 构建 Release 版本
+##### Building the Release Version with MinGW
 ```
 set CC=gcc
 set CXX=c++
@@ -94,10 +94,10 @@ cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE:STRING=./vcpk
 ninja -C out/build/x64-Release-MinGW -j 8 all
 ```
 
-#### 在 Linux 上使用 GCC 构建
-在开始前，需要安装最新版本的 GCC 与 G++ 编译器。在 Ubuntu 上，你可以通过安装 `build-essential` 包以获得相应编译器支持。  
+#### Building with GCC on Linux
+Before starting, you need to install the latest versions of the GCC and G++ compilers. On Ubuntu, you can get the compilers by installing the `build-essential` package.  
 
-##### 使用 GCC 构建 Debug 版本
+##### Building the Debug Version with GCC
 ```
 export CC=gcc
 export CXX=c++
@@ -105,7 +105,7 @@ cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE:STRING=./vcpkg/
 ninja -C ./out/build/x64-Debug-GCC -j 8 all
 ```
 
-##### 使用 GCC 构建 Release 版本
+##### Building the Release Version with GCC
 ```
 export CC=gcc
 export CXX=c++
@@ -115,115 +115,115 @@ ninja -C ./out/build/x64-Release-GCC -j 8 all
 
 <div STYLE="page-break-after: always;"></div>
 
-## 3 启动参数
-使用如下的命令运行 LiteHttpd：  
+## 3 Startup Parameters
+Run LiteHttpd with the following command:  
 
 ```
-LiteHttpd <配置文件路径>
+LiteHttpd <configuration_file_path>
 ```
 
-当未指定配置文件路径时，LiteHttpd 将自动使用工作目录下 `config.lua` 作为默认配置文件。  
+If the configuration file path is not specified, LiteHttpd will automatically use `config.lua` in the working directory as the default configuration file.  
 
 <div STYLE="page-break-after: always;"></div>
 
-## 4 配置文件
-配置文件使用 [Lua] 语言，语法版本为 [Lua 5.4]，支持 Lua 标准库。  
+## 4 Configuration File
+The configuration file uses the [Lua] language, syntax version [Lua 5.4], and supports the Lua standard library.
 
-### 函数文档
+### Function Documentation
 #### set_port(port)
-> **参数：**  
-> - port: **整数**，当前服务器进程要监听的端口号。默认状态下使用 80 端口。
+> **Parameters:**  
+> - port: **Integer**, the port number which the current server process will listen to. The default port is 80.
 >
-> **返回值：** 无。  
+> **Returns:** None.  
 
 #### set_https(use_https)
-> **参数：**  
-> - use_https: **布尔**，当前服务器是否使用 https。默认状态下不使用 https。
+> **Parameters:**  
+> - use_https: **Boolean**, whether the current server uses HTTPS. The default is not to use HTTPS.
 >
-> **返回值：** 无。  
+> **Returns:** None.  
 
 #### set_default_page(path)
-> **参数：**  
-> - path: **字符串**，服务器欢迎页的路径。默认状态下使用 LiteHttpd 目录下 `default.html`。
+> **Parameters:**  
+> - path: **String**, the path to the server's welcome page. The default is `default.html` in the LiteHttpd directory.
 >
-> **返回值：** 无。  
+> **Returns:** None.  
 
 #### add_module(host, path)
-> **参数：**  
-> - host: **字符串**，http 请求中的站点名。
-> - path: **字符串**，处理相应请求的模块路径。不需要添加扩展名，LiteHttpd 会根据平台在路径后添加 `.dll` `.so` `.dylib`。
+> **Parameters:**  
+> - host: **String**, the host name in the HTTP request.
+> - path: **String**, the path to the module handling the corresponding request. No need to add file extension; LiteHttpd will append `.dll`, `.so`, or `.dylib` based on the platform.
 >
-> **返回值：** 无。  
+> **Returns:** None.  
 
 #### remove_module(host)
-> **参数：**  
-> - host: **字符串**，http 请求中的站点名。
+> **Parameters:**  
+> - host: **String**, the host name in the HTTP request.
 >
-> **返回值：** 无。  
+> **Returns:** None.  
 
 #### add_cer(host, key_path, cer_path)
-> **参数：**  
-> - host: **字符串**，SSL 握手时 SNI 字段中的站点名。
-> - key_path: **字符串**，SSL 私钥路径。SSL 私钥应为 PEM 格式。
-> - cer_path: **字符串**，SSL 证书路径。SSL 证书应为 PEM 格式的 X.509 证书链，可将 CA 根证书与中间证书按顺序拼接在站点证书后得到证书链。
+> **Parameters:**  
+> - host: **String**, the host name in the SNI field during SSL handshake.
+> - key_path: **String**, the path to the SSL private key. The SSL private key should be in PEM format.
+> - cer_path: **String**, the path to the SSL certificate. The SSL certificate should be a PEM format X.509 certificate chain, with the CA root certificate and intermediate certificates concatenated in order after the site certificate to form the certificate chain.
 >
-> **返回值：** 无。  
+> **Returns:** None.  
 
 #### remove_cer(host)
-> **参数：**  
-> - host: **字符串**，SSL 握手时 SNI 字段中的站点名。
+> **Parameters:**  
+> - host: **String**, the host name in the SNI field during SSL handshake.
 >
-> **返回值：** 无。  
+> **Returns:** None.  
 
-### 配置文件示例
-以下是默认配置文件的示例：  
+### Example Configuration File
+Below is an example of the default configuration file:  
 
 ```lua
-set_port(443) -- 服务器监听 443 端口
-set_https(true) -- 使用 https 服务
+set_port(443) -- Server listens on port 443
+set_https(true) -- Use HTTPS service
 
--- 为 localhost 域名设置 SSL 私钥与证书
+-- Set SSL private key and certificate for the localhost domain
 add_cer("localhost", "./localhost.key", "./localhost.cer")
--- 指定使用 LiteHttpd.FileServer 模块处理 localhost 的 http 请求
+-- Specify using the LiteHttpd.FileServer module to handle HTTP requests for localhost
 add_module("localhost", "./LiteHttpd.FileServer")
 ```
 
-### 默认欢迎页面示例
-![默认欢迎页面](welcome-page.jpeg)
+### Example of Default Welcome Page
+![Default Welcome Page](welcome-page.jpeg)
 
 <div STYLE="page-break-after: always;"></div>
 
-## 5 模块开发
-LiteHttpd 可以便捷地开发模块以处理不同的 http 请求，并提供了 [LiteHttpd SDK] 以支持模块开发。  
+## 5 Module Development
+LiteHttpd allows for convenient development of modules to handle different HTTP requests and provides the [LiteHttpd SDK] to support module development.  
 
-### 引用 LiteHttpd SDK
-你可以使用 [Git] 将 LiteHttpd SDK 作为子模块添加到你的项目中：  
+### Importing the LiteHttpd SDK
+You can add the LiteHttpd SDK as a submodule to your project using [Git]:  
 
 ```
 git submodule add https://github.com/LiteHttpd/LiteHttpd.Dev.git
 ```
 
-当你使用 [CMake] 时，你可以使用以下命令链接 LiteHttpd SDK：  
+When using [CMake], you can link the LiteHttpd SDK with the following commands:  
 
 ```cmake
-# 引用 SDK
+# Import the SDK
 if (NOT TARGET LiteHttpdDev::core)
-	add_subdirectory (LiteHttpd.Dev)
-endif ()
+    add_subdirectory(LiteHttpd.Dev)
+endif()
 
-# 链接 SDK
-target_link_libraries (your_target PRIVATE LiteHttpdDev::core)
+# Link the SDK
+target_link_libraries(your_target PRIVATE LiteHttpdDev::core)
 ```
 
-### 在代码中包含 SDK 头文件
-在你的代码需要使用 SDK 的文件中包含 `LiteHttpdDev.h` 头文件：  
+### Including SDK Header Files in Your Code
+Include the `LiteHttpdDev.h` header file in the files where you need to use the SDK:  
 
 ```cpp
 #include <LiteHttpdDev.h>
 ```
 
-### 编写模块类
-创建你自己的模块类并使其派生自 `ModuleBase` 类，重写 `processRequest` 方法实现自己的请求处理逻辑：  
+### Writing a Module Class
+Create your own module class and inherit it from the `ModuleBase` class. Override the `processRequest` method to implement your own request handling codes:  
 
 ```cpp
 class YourModule : public ModuleBase {
@@ -238,50 +238,50 @@ public:
 };
 
 void YourModule::processRequest(const RequestParams& rp) {
-    // 处理请求
+    // Handling Request
 }
 ```
-
-### 注册模块类
-使用宏 `LITEHTTPD_MODULE` 将你自己的模块类注册为该模块导出的模块类：  
+ 
+### Registering the Module Class
+Use the `LITEHTTPD_MODULE` macro to register your module class as the exported module class:  
 
 ```cpp
 LITEHTTPD_MODULE(YourModule)
 ```
 
-### 请求参数参考
-`processRequest` 方法的传入参数类型为 `RequestParams`，其中具有以下属性及公共方法：  
-- **protocol:ProtocolType** 请求的协议类型
-- **addr:string** 请求的 host 字段
-- **port:uint16_t** 请求的端口号
-- **path:string** 请求的路径
-- **query:string** 请求的 query 字段
-- **params:ParamList** 解析后的请求 query 中的参数
-- **method:MethodType** 请求的 http 方法
-- **headers:ParamList** 请求头数据列表
-- **data:vector\<char\>** 请求的数据内容
-- **peerAddr:string** 客户端的 ip 地址
-- **peerPort:uint16_t** 客户端的端口号
+### Request Parameters Reference
+The `processRequest` method takes a parameter of type `RequestParams`, which has the following properties and public methods:  
+- **protocol: ProtocolType** The protocol type of the request
+- **addr: string** The host field of the request
+- **port: uint16_t** The port number of the request
+- **path: string** The path field of the request
+- **query: string** The query field of the request
+- **params: ParamList** The parsed parameters from the request query
+- **method: MethodType** The HTTP method of the request
+- **headers: ParamList** The list of request headers
+- **data: vector<char>** The content of the request data
+- **peerAddr: string** The IP address of the client
+- **peerPort: uint16_t** The port number of the client
 
-- **int getResponseCode()** 当请求已响应时，获取相应的 http 状态码，否则返回 0
-- **void reply(int code, const std::vector<char>& data)** 发送响应码及响应数据进行响应。对于每个请求，除非分片响应，必须调用一次此方法
-- **void replyStart(int code)** 开始发送分片响应。对于每个请求，都要进行一次常规响应或分片响应
-- **void replyData(const std::vector<char>& data)** 发送分片响应数据
-- **void replyEnd()** 结束分片响应
-- **void addHeader(const std::string& key, const std::string& value)** 为本次请求的响应添加响应头字段
-- **void log(LogLevel level, const std::string& data)** 写入单条日志
-- **const FPMResult callFPM(const std::string& addr, uint16_t port, const std::vector<char>& data, const ParamList& params)** 调用 PHP 并接收调用结果
+- **int getResponseCode()** Returns the HTTP status code if the request has been responded, otherwise returns 0
+- **void reply(int code, const std::vector<char>& data)** Sends the response code and response data. This method must be called once per request, unless using chunked responses
+- **void replyStart(int code)** Starts sending a chunked response. Each request must have either a regular response or a chunked response
+- **void replyData(const std::vector<char>& data)** Sends chunked response data
+- **void replyEnd()** Ends the chunked response
+- **void addHeader(const std::string& key, const std::string& value)** Adds a header field to the response for the current request
+- **void log(LogLevel level, const std::string& data)** Writes a log message
+- **const FPMResult callFPM(const std::string& addr, uint16_t port, const std::vector<char>& data, const ParamList& params)** Calls PHP and receives the result
 
 <div STYLE="page-break-after: always;"></div>
 
-## 6 文件服务器
-[LiteHttpd.FileServer] 是 LiteHttpd 文件服务器模块的官方实现版本。  
-该模块通过 FastCGI 与 PHP-FPM 通信以执行 PHP 脚本文件，该功能需要安装 [PHP] 并启动 FPM 或 CGI 相关服务。  
-另外也可通过 FastCGI 与其他服务通信。  
+## 6 File Server
+[LiteHttpd.FileServer] is the official implementation of the LiteHttpd file server module.  
+This module communicates with PHP-FPM via FastCGI to execute PHP script files. This feature requires installing [PHP] and starting the FPM or CGI-related services.  
+It can also communicate with other services via FastCGI.  
 
-### 文件服务器配置文件
-LiteHttpd.FileServer 使用 json 作为配置文件格式，配置文件位于模块目录下 `LiteHttpd.FileServer.json`。  
-以下为默认配置文件示例：  
+### File Server Configuration File
+LiteHttpd.FileServer uses JSON as the configuration file format, located in the module directory as `LiteHttpd.FileServer.json`.  
+Below is an example of the default configuration file:  
 
 ```json
 {
@@ -310,15 +310,25 @@ LiteHttpd.FileServer 使用 json 作为配置文件格式，配置文件位于�
 - **fpm.port:** FastCGI 服务端口，默认为 `9000`
 - **fpm.fcgi_children:** 传递给 PHP-FPM 的 `PHP_FCGI_CHILDREN` 参数，默认为 `2`
 - **fpm.fcgi_max_requests:** 传递给 PHP-FPM 的 `PHP_FCGI_MAX_REQUESTS` 参数，默认为 `1000`
+- **survival:** The lifespan of the file cache in seconds. The default value is `60`.
+- **root:** The location of the website's root directory. Supports matching and replacing `$hostname$` and `$port$` with actual parameters. The default value is `"./$hostname$"`.
+- **page404:** The path to the 404 error page. Supports matching and replacing `$hostname$`, `$port$`, and `$root$` with actual parameters. The default value is `"404.html"`.
+- **page403:** The path to the 403 error page. Supports the same parameter matching as the 404 error page. The default value is `"403.html"`.
+- **defaultPage:** The default page name for the website. When the request path is a directory, the default page under the directory will be returned. The default value is `"index.html"`.
+- **fpm.surfix:** The file types to be processed via FastCGI. The default value is `".php"`.
+- **fpm.address:** The FastCGI service address. The default value is `"127.0.0.1"`.
+- **fpm.port:** The FastCGI service port. The default value is `9000`.
+- **fpm.fcgi_children:** The `PHP_FCGI_CHILDREN` parameter passed to PHP-FPM. The default value is `2`.
+- **fpm.fcgi_max_requests:** The `PHP_FCGI_MAX_REQUESTS` parameter passed to PHP-FPM. The default value is `1000`.
 
-### 默认 403 页面示例
-![默认 403 页面](403-page.jpeg)
+### Default 403 Page Example
+![Default 403 Page](403-page.jpeg)
 
-### 默认 404 页面示例
-![默认 404 页面](404-page.jpeg)
+### Default 404 Page Example
+![Default 404 Page](404-page.jpeg)
 
-### PHP 页面示例
-![PHP 信息页面](php-info.jpeg)
+### PHP Page Example
+![PHP Info Page](php-info.jpeg)
 
 <div STYLE="page-break-after: always;"></div>
 
