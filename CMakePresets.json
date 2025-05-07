@@ -1,0 +1,148 @@
+﻿{
+  "version": 5,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 15,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "Ninja Debug x64",
+      "displayName": "Ninja Debug x64",
+      "description": "Ninja Debug x64",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/ninja-debug-x64",
+      "installDir": "${sourceDir}/install/ninja-debug-x64",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET": "x64-windows",
+        "CMAKE_C_COMPILER": "cl",
+        "CMAKE_CXX_COMPILER": "cl",
+        "CMAKE_RC_COMPILER": "rc"
+      }
+    },
+    {
+      "name": "Ninja Release x64",
+      "displayName": "Ninja Release x64",
+      "description": "Ninja Release x64",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/ninja-release-x64",
+      "installDir": "${sourceDir}/install/ninja-release-x64",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET": "x64-windows",
+        "CMAKE_C_COMPILER": "cl",
+        "CMAKE_CXX_COMPILER": "cl",
+        "CMAKE_RC_COMPILER": "rc"
+      }
+    },
+    {
+      "name": "Ninja Debug Win64 GCC",
+      "displayName": "Ninja Debug Win64 GCC",
+      "description": "Ninja Debug Win64 GCC",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/ninja-debug-win64-gcc",
+      "installDir": "${sourceDir}/install/ninja-debug-win64-gcc",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET": "x64-mingw-dynamic",
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_RC_COMPILER": "windres"
+      }
+    },
+    {
+      "name": "Ninja Release Win64 GCC",
+      "displayName": "Ninja Release Win64 GCC",
+      "description": "Ninja Release Win64 GCC",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/ninja-release-win64-gcc",
+      "installDir": "${sourceDir}/install/ninja-release-win64-gcc",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET": "x64-mingw-dynamic",
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_RC_COMPILER": "windres"
+      }
+    },
+    {
+      "name": "Ninja Debug Linux GCC",
+      "displayName": "Ninja Debug Linux GCC",
+      "description": "Ninja Debug Linux GCC",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/ninja-debug-linux-gcc",
+      "installDir": "${sourceDir}/install/ninja-debug-linux-gcc",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET": "x64-linux",
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
+      "name": "Ninja Release Linux GCC",
+      "displayName": "Ninja Release Linux GCC",
+      "description": "Ninja Release Linux GCC",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/ninja-release-linux-gcc",
+      "installDir": "${sourceDir}/install/ninja-release-linux-gcc",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET": "x64-linux",
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "Ninja Debug x64",
+      "displayName": "Ninja Debug x64",
+      "description": "Ninja Debug x64",
+      "configurePreset": "Ninja Debug x64",
+      "jobs": 16
+    },
+    {
+      "name": "Ninja Release x64",
+      "displayName": "Ninja Release x64",
+      "description": "Ninja Release x64",
+      "configurePreset": "Ninja Release x64",
+      "jobs": 16
+    },
+    {
+      "name": "Ninja Debug Win64 GCC",
+      "displayName": "Ninja Debug Win64 GCC",
+      "description": "Ninja Debug Win64 GCC",
+      "configurePreset": "Ninja Debug Win64 GCC",
+      "jobs": 16
+    },
+    {
+      "name": "Ninja Release Win64 GCC",
+      "displayName": "Ninja Release Win64 GCC",
+      "description": "Ninja Release Win64 GCC",
+      "configurePreset": "Ninja Release Win64 GCC",
+      "jobs": 16
+    },
+    {
+      "name": "Ninja Debug Linux GCC",
+      "displayName": "Ninja Debug Linux GCC",
+      "description": "Ninja Debug Linux GCC",
+      "configurePreset": "Ninja Debug Linux GCC",
+      "jobs": 16
+    },
+    {
+      "name": "Ninja Release Linux GCC",
+      "displayName": "Ninja Release Linux GCC",
+      "description": "Ninja Release Linux GCC",
+      "configurePreset": "Ninja Release Linux GCC",
+      "jobs": 16
+    }
+  ]
+}

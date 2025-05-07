@@ -1,4 +1,4 @@
-﻿# Prerequisites
+# Prerequisites
 *.d
 
 # Compiled Object files
@@ -43,6 +43,8 @@
 # Output
 [Oo]ut/**
 cmake-build-*/**
+build/**
+install/**
 
 # vcpkg Packages
 vcpkg_installed/**

@@ -1,4 +1,4 @@
-﻿name: Build Artifacts
+name: Build Artifacts
 
 on:
   push:
@@ -15,24 +15,20 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest]
-        compiler: [MSVC, MinGW, GCC]
+        compiler: [MSVC, GCC]
         include:
           - os: windows-latest
             compiler: MSVC
             triplet: x64-windows
           - os: windows-latest
-            compiler: MinGW
+            compiler: GCC
             triplet: x64-mingw-dynamic
           - os: ubuntu-latest
             compiler: GCC
             triplet: x64-linux
         exclude:
-          - os: windows-latest
-            compiler: GCC
           - os: ubuntu-latest
             compiler: MSVC
-          - os: ubuntu-latest
-            compiler: MinGW
     
     steps:
     - name: Checkout
@@ -53,7 +49,7 @@ jobs:
         version: 1.11.0
 
     - name: Install MinGW
-      if: matrix.compiler == 'MinGW'
+      if: matrix.compiler == 'GCC' && runner.os == 'Windows'
       uses: egor-tensin/setup-mingw@v2
       with:
         platform: x64
@@ -101,33 +97,52 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest]
         build_type: [Debug, Release]
-        compiler: [MSVC, MinGW, GCC]
+        compiler: [MSVC, GCC]
         include:
           - os: windows-latest
             compiler: MSVC
-            c_compiler: cl
-            cxx_compiler: cl
-            asm_compiler: cl
             triplet: x64-windows
           - os: windows-latest
-            compiler: MinGW
-            c_compiler: gcc
-            cxx_compiler: c++
-            asm_compiler: ''
+            compiler: GCC
             triplet: x64-mingw-dynamic
           - os: ubuntu-latest
             compiler: GCC
-            c_compiler: gcc
-            cxx_compiler: c++
-            asm_compiler: ''
             triplet: x64-linux
-        exclude:
+
           - os: windows-latest
+            build_type: Debug
+            compiler: MSVC
+            cmake_config: 'Ninja Debug x64'
+            build_path: 'ninja-debug-x64'
+          - os: windows-latest
+            build_type: Release
+            compiler: MSVC
+            cmake_config: 'Ninja Release x64'
+            build_path: 'ninja-release-x64'
+          - os: windows-latest
+            build_type: Debug
             compiler: GCC
+            cmake_config: 'Ninja Debug Win64 GCC'
+            build_path: 'ninja-debug-win64-gcc'
+          - os: windows-latest
+            build_type: Release
+            compiler: GCC
+            cmake_config: 'Ninja Release Win64 GCC'
+            build_path: 'ninja-release-win64-gcc'
+          - os: ubuntu-latest
+            build_type: Debug
+            compiler: GCC
+            cmake_config: 'Ninja Debug Linux GCC'
+            build_path: 'ninja-debug-linux-gcc'
+          - os: ubuntu-latest
+            build_type: Release
+            compiler: GCC
+            cmake_config: 'Ninja Release Linux GCC'
+            build_path: 'ninja-release-linux-gcc'
+
+        exclude:
           - os: ubuntu-latest
             compiler: MSVC
-          - os: ubuntu-latest
-            compiler: MinGW
 
     permissions:
       id-token: write
@@ -153,7 +168,7 @@ jobs:
         version: 1.11.0
 
     - name: Install MinGW
-      if: matrix.compiler == 'MinGW'
+      if: matrix.compiler == 'GCC' && runner.os == 'Windows'
       uses: egor-tensin/setup-mingw@v2
       with:
         platform: x64
@@ -178,33 +193,28 @@ jobs:
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}
-      env:
-        CC: ${{matrix.c_compiler}}
-        CXX: ${{matrix.cxx_compiler}}
-        ASM: ${{matrix.asm_compiler}}
-        VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
-      run: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCMAKE_TOOLCHAIN_FILE:STRING=./vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET:STRING=${{matrix.triplet}} -B out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}} .
+      run: cmake --preset "${{matrix.cmake_config}}"
 
     - name: Build
       working-directory: ${{github.workspace}}
-      run: ninja -C out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}} -j 2 LiteHttpd
+      run: cmake --build "build/${{matrix.build_path}}" --target LiteHttpd
 
     - name: Pre Packing
       working-directory: ${{github.workspace}}
       shell: pwsh
-      run: ./prePacking.ps1 ./out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin
+      run: ./prePacking.ps1 ./build/${{matrix.build_path}}/bin
 
     - name: Generate Artifact Attestation Windows
       if: runner.os == 'Windows' && github.event_name != 'pull_request'
       uses: actions/attest-build-provenance@v1
       with:
-        subject-path: '"${{github.workspace}}/out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/*.exe","${{github.workspace}}/out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/*.dll"'
+        subject-path: '"${{github.workspace}}/build/${{matrix.build_path}}/bin/*.exe","${{github.workspace}}/build/${{matrix.build_path}}/bin/*.dll"'
 
     - name: Generate Artifact Attestation Linux
       if: runner.os == 'Linux' && github.event_name != 'pull_request'
       uses: actions/attest-build-provenance@v1
       with:
-        subject-path: '"${{github.workspace}}/out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/LiteHttpd","${{github.workspace}}/out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/*.so"'
+        subject-path: '"${{github.workspace}}/build/${{matrix.build_path}}/bin/LiteHttpd","${{github.workspace}}/build/${{matrix.build_path}}/bin/*.so"'
     
     - name: Get Short SHA
       uses: benjlevesque/short-sha@v3.0
@@ -218,7 +228,7 @@ jobs:
       with:
         name: LiteHttpd-${{runner.os}}-${{runner.arch}}-${{matrix.compiler}}-${{matrix.build_type}}-${{ steps.short-sha.outputs.sha }}
         path: |
-          out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/**
+          build/${{matrix.build_path}}/bin/**
         compression-level: 9
 
     - name: Archive Artifacts (Not Signed)
@@ -227,5 +237,5 @@ jobs:
       with:
         name: LiteHttpd-${{runner.os}}-${{runner.arch}}-${{matrix.compiler}}-${{matrix.build_type}}-${{ steps.short-sha.outputs.sha }}-Unsafe
         path: |
-          out/build/${{runner.arch}}-${{matrix.build_type}}-${{matrix.compiler}}/bin/**
+          build/${{matrix.build_path}}/bin/**
         compression-level: 9
