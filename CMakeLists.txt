@@ -1,6 +1,6 @@
-﻿cmake_minimum_required (VERSION 3.15)
+cmake_minimum_required (VERSION 3.15)
 
-project (LiteHttpd VERSION 1.1.1 LANGUAGES CXX C)
+project (LiteHttpd VERSION 1.1.2 LANGUAGES CXX C)
 
 if (NOT CMAKE_BUILD_TYPE)
     set (CMAKE_BUILD_TYPE "Release"  CACHE STRING "Choose the type of build." FORCE)
