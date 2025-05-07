@@ -1,4 +1,4 @@
-﻿name: Upload Release
+name: Upload Release
 
 on:
   push:
@@ -55,14 +55,10 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest]
         build_type: [Debug, Release]
-        compiler: [MSVC, MinGW, GCC]
+        compiler: [MSVC, GCC]
         exclude:
-          - os: windows-latest
-            compiler: GCC
           - os: ubuntu-latest
             compiler: MSVC
-          - os: ubuntu-latest
-            compiler: MinGW
 
     permissions:
       contents: write
