@@ -7,6 +7,10 @@ on:
     branches: [ "main" ]
   workflow_call:
 
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+
 jobs:
   build-package:
     runs-on: ${{matrix.os}}
@@ -190,6 +194,12 @@ jobs:
       uses: ilammy/msvc-dev-cmd@v1
       with:
         arch: ${{runner.arch}}
+
+    - name: Install Packages
+      working-directory: ${{github.workspace}}
+      env:
+        VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+      run: vcpkg/vcpkg install --triplet=${{matrix.triplet}}
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}
