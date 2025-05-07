@@ -1,4 +1,4 @@
-﻿#include "RequestParamsBuilder.h"
+#include "RequestParamsBuilder.h"
 #include "Utils.h"
 #include "log/Logger.h"
 #include "fpm/FCGIBase.h"
@@ -9,7 +9,8 @@
 #include <event2/buffer.h>
 
 void RequestParamsBuilder::build(
-	RequestParams& params, evhttp_request* request, bool https) {
+	RequestParams& params, evhttp_request* request,
+	bool https, uint16_t port) {
 	if (!request) { return; }
 
 	/** Get Connection */
@@ -124,9 +125,14 @@ void RequestParamsBuilder::build(
 
 	/** Host */
 	{
-		const char* host = evhttp_request_get_host(request);
-		std::tie(params.addr, params.port) = RequestParamsBuilder::parseHostStr(
-			host, params.protocol == RequestParams::ProtocolType::HTTPS);
+		params.addr = evhttp_request_get_host(request);
+
+		params.port = port;
+		if (params.port == 0) {
+			params.port = (params.protocol == RequestParams::ProtocolType::HTTPS) ? 443 : 80;
+		}
+		//std::tie(params.addr, params.port) = RequestParamsBuilder::parseHostStr(
+		//	host, params.protocol == RequestParams::ProtocolType::HTTPS);
 	}
 
 	/** Data */

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <string>
 #include <vector>
@@ -33,6 +33,8 @@ private:
 
 private:
 	const ProtocolType protocol = ProtocolType::HTTP;
+	const std::string address;
+	const uint16_t port = 0;
 	const FindCtxFunc findCtx;
 	const DefaultCtxFunc defaultCtx;
 	const FindModuleFunc findModule;

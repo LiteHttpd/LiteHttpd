@@ -1,4 +1,4 @@
-﻿#include "HttpServer.h"
+#include "HttpServer.h"
 #include "EventBase.h"
 #include "RequestParamsBuilder.h"
 #include "Utils.h"
@@ -48,7 +48,7 @@ HttpServer::HttpServer(ProtocolType protocol,
 	const std::string& address, uint16_t port,
 	const FindCtxFunc& findCtx, const DefaultCtxFunc& defaultCtx,
 	const FindModuleFunc& findModule)
-	: protocol(protocol),
+	: protocol(protocol), address(address), port(port),
 	findCtx(findCtx), defaultCtx(defaultCtx),
 	findModule(findModule) {
 	Logger::info("Create http server: " + address + ":" + std::to_string(port));
@@ -162,7 +162,7 @@ void HttpServer::requestCallback(evhttp_request* request, void* arg) {
 	if (auto server = reinterpret_cast<HttpServer*>(arg)) {
 		/** Params */
 		RequestParams params;
-		RequestParamsBuilder::build(params, request, server->protocol == HttpServer::ProtocolType::HTTPS);
+		RequestParamsBuilder::build(params, request, server->protocol == HttpServer::ProtocolType::HTTPS, server->port);
 		Logger::info("Accept http(s) request: " + params.addr + ":" + std::to_string(params.port));
 		Logger::info("Peer address: " + params.peerAddr + ":" + std::to_string(params.peerPort));
 		Logger::info("Protocol: " + std::string{ (params.protocol == RequestParams::ProtocolType::HTTPS) ? "https" : "http" });
